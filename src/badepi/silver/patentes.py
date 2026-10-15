@@ -57,6 +57,7 @@ for _codes, _ev in [
     (["9.2", "9.2.4", "23.7"], "indeferimento"),
     (["16.1", "23.9"], "concessao"),
     (["16.4", "200"], "patente_anulada"),
+    (["15.21"], "numeracao_anulada"),  # "Numeração Anulada" / "Documentação arquivada e depósito não efetuado": o depósito não se efetivou
     (["8.6", "8.11", "8.12", "11.1", "11.1.1", "11.2", "11.3", "11.4", "11.5", "11.6", "11.6.1", "11.11", "11.12",
       "11.17", "11.18", "11.20", "11.21", "11.34", "15.1", "23.6", "138", "217", "22.14"], "arquivamento"),
     (["4.3", "11.16", "11.34.1", "15.34", "15.34.1", "102", "103"], "desarquivamento"),

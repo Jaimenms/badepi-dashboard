@@ -160,8 +160,12 @@ function wireCard(r) {
   r.card.querySelectorAll('input[type=range][data-key]').forEach(inp => {
     const out = r.card.querySelector(`output[for="${inp.id}"]`);
     const apply = () => { r.state[inp.dataset.key] = Number(inp.value); if (out) out.value = inp.value; };
-    apply();
-    inp.addEventListener('input', () => { apply(); if (!r.chart) render(r); else rerender(r.id, {}); });
+    if (out) out.value = inp.value;
+    if (r.state[inp.dataset.key] === undefined) apply();   // um estado inicial vindo do register() (ex.: 'todos') prevalece
+    inp.addEventListener('input', () => {
+      apply(); r.card.querySelectorAll(`.seg[data-key="${inp.dataset.key}"] button`).forEach(b => b.classList.toggle('active', b.dataset.value === inp.value));
+      if (!r.chart) render(r); else rerender(r.id, {});
+    });
   });
 }
 export function mountAll(ctx) {

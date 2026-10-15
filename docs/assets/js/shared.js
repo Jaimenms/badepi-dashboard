@@ -103,6 +103,7 @@ const SIT_GROUPS = (termo) => [
   ['Indeferida', ['Indeferida']],
   ['Arquivada', ['Arquivada']],
   ['Retirada / desistência', ['Retirada']],
+  ['Numeração anulada (depósito não efetivado)', ['Numeração anulada']],
 ];
 
 export function mountCommon(d, cfg) {
@@ -151,8 +152,8 @@ export function mountCommon(d, cfg) {
 
   register('sit-coorte', ({ t, state }) => {
     const sc = d.situacao_coorte; const src = state.view === 'res' ? sc.por_coorte_residentes : state.view === 'nres' ? sc.por_coorte_nao_residentes : sc.por_coorte;
-    const groups = SIT_GROUPS(termo);
-    const counts = groups.map(([, keys]) => anos.map((_, i) => sum(keys.map(k => src[k][i]))));
+    const groups = SIT_GROUPS(termo).filter(([, keys]) => keys.some(k => src[k] && sum(src[k]) > 0));
+    const counts = groups.map(([, keys]) => anos.map((_, i) => sum(keys.map(k => (src[k] || [])[i] || 0))));
     const totals = anos.map((_, i) => sum(counts.map(c => c[i]))); const pcts = counts.map(c => c.map((v, i) => pctOf(v, totals[i])));
     return { option: { legend: { type: 'scroll' }, grid: { top: 52 },
       tooltip: { trigger: 'axis', formatter: ps => { const i = ps[0].dataIndex; return `<div style="font-weight:700;margin-bottom:4px">${anos[i]} · ${fmt.int(totals[i])} pedidos</div>` + ps.map(p => `<div style="display:flex;justify-content:space-between;gap:18px"><span>${p.marker} ${p.seriesName}</span><b>${fmt.int(counts[p.seriesIndex][i])} (${fmt.pct(p.value)})</b></div>`).join(''); } },
@@ -191,7 +192,8 @@ export function mountCommon(d, cfg) {
   register('ciclo', ({ t, state }) => {
     const cv = d.ciclo_vida; const src = state.ano === 'todos' || !cv.por_ano[state.ano] ? cv.todos : cv.por_ano[state.ano];
     const passos = cv.passos; const colors = [t.series[3], t.series[0], t.series[2], t.series[6], t.series[7], t.series[1], t.series[4]];
-    setText('ciclo-sub', state.ano === 'todos' ? `Todas as safras (${anos[0]}–${anos[anos.length - 1]}), só pedidos já observáveis em cada ponto` : `Safra ${state.ano}: ${fmt.int(src.n_observados[0])} pedidos`);
+    const excl = cv.excluidos_numeracao_anulada ? ` · ${fmt.int(cv.excluidos_numeracao_anulada)} pedidos com numeração anulada (depósito não efetivado) ficam fora` : '';
+    setText('ciclo-sub', (state.ano === 'todos' ? `Todas as safras (${anos[0]}–${anos[anos.length - 1]}), só pedidos já observáveis em cada ponto` : `Safra ${state.ano}: ${fmt.int(src.n_observados[0])} pedidos`) + excl);
     return { option: { legend: { type: 'scroll' }, grid: { top: 52 },
       tooltip: { trigger: 'axis', formatter: ps => { const i = ps[0].dataIndex; return `<div style="font-weight:700;margin-bottom:4px">${passos[i]} anos após o protocolo · ${fmt.int(src.n_observados[i])} pedidos observáveis</div>` + ps.map(p => `<div style="display:flex;justify-content:space-between;gap:18px"><span>${p.marker} ${p.seriesName}</span><b>${fmt.pct(p.value)}</b></div>`).join(''); } },
       xAxis: ax.time(t, passos.map(p => (Number.isInteger(p) ? String(p) : '')), X.decorrido, { axisLabel: { interval: 1 } }), yAxis: ax.val(t, { formatter: v => v + '%', max: 100 }),
@@ -205,7 +207,7 @@ export function mountCommon(d, cfg) {
     for (let a = de; a <= ate; a++) for (const [i, j, n] of (tr.por_ano[String(a)] || [])) { const k = i + '-' + j; acc.set(k, (acc.get(k) || 0) + n); }
     const edges = [...acc.entries()].map(([k, n]) => { const [i, j] = k.split('-').map(Number); return { i, j, n }; }).filter(e => e.n >= minW && e.i !== e.j);
     const used = new Set(edges.flatMap(e => [e.i, e.j])); const maxN = Math.max(1, ...edges.map(e => e.n));
-    const grp = ev => (['deposito', 'publicacao', 'pct_fase_nacional'].includes(ev) ? 0 : ['exigencia', 'parecer', 'anuencia_anvisa', 'sobrestamento', 'oposicao'].includes(ev) ? 1 : ['deferimento', 'concessao', 'prorrogacao'].includes(ev) ? 2 : ['indeferimento', 'arquivamento', 'extincao', 'desistencia_retirada', 'anulacao', 'patente_anulada'].includes(ev) ? 3 : ['recurso', 'recurso_provido', 'recurso_negado', 'nulidade'].includes(ev) ? 4 : 5);
+    const grp = ev => (['deposito', 'publicacao', 'pct_fase_nacional'].includes(ev) ? 0 : ['exigencia', 'parecer', 'anuencia_anvisa', 'sobrestamento', 'oposicao'].includes(ev) ? 1 : ['deferimento', 'concessao', 'prorrogacao'].includes(ev) ? 2 : ['indeferimento', 'arquivamento', 'extincao', 'desistencia_retirada', 'anulacao', 'patente_anulada', 'numeracao_anulada'].includes(ev) ? 3 : ['recurso', 'recurso_provido', 'recurso_negado', 'nulidade'].includes(ev) ? 4 : 5);
     const GRP = ['Entrada e publicação', 'Exame, exigências e oposição', 'Decisão favorável', 'Decisão desfavorável / extinção', 'Recursos e nulidade', 'Petições e outros'];
     const gcol = [t.series[0], t.series[3], t.series[2], t.series[7], t.series[6], t.deemph];
     const inFlow = new Map(); edges.forEach(e => inFlow.set(e.j, (inFlow.get(e.j) || 0) + e.n));

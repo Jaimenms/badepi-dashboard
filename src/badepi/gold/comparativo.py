@@ -40,4 +40,36 @@ def build(force: bool = False):
     for p in [GOLD_DIR / "comparativo.json", DOCS_DATA_DIR / "comparativo.json"]:
         write_json(out, Path(p))
     log.info("[comparativo] comparativo.json ok (%d ativos)", len(itens))
+    build_modelo_geral()
+    return out
+
+
+# ----------------------------------------------------------------------------- modelo geral (página "Como usar")
+ATIVOS_TODOS = [
+    ("patentes", "Patentes", "ptn", "patentes.html"), ("marcas", "Marcas", "mrc", "marcas.html"),
+    ("desenho_industrial", "Desenhos industriais", "di", "desenhos.html"), ("indicacao_geografica", "Indicações geográficas", "ig", "indicacoes.html"),
+    ("contratos", "Contratos de tecnologia", "ctt", None), ("programa_computador", "Programas de computador", "prg", None),
+    ("topografia_ci", "Topografias de circuito integrado", "tci", None), ("pi_genero", "PI e Gênero", "pigen", None),
+]
+
+
+def build_modelo_geral() -> dict:
+    """Consolida, para o guia, o que existe em cada camada por ativo: arquivos da bronze, tabelas e relações da silver."""
+    from ..config import SOURCES
+    ativos = []
+    for slug, label, prefix, pagina in ATIVOS_TODOS:
+        src = SOURCES[slug]
+        item = {"slug": slug, "label": label, "prefix": prefix, "pagina": pagina, "zip": src.filename, "url_fonte": src.url, "bronze": None, "silver": None}
+        bm = src.bronze_dir / "_manifest.json"
+        if bm.exists():
+            m = read_json(bm)
+            item["bronze"] = {"extracted_at": m.get("extracted_at"), "files": [{"name": n, "size": f["size"]} for n, f in sorted(m.get("files", {}).items())]}
+        dm = DOCS_DATA_DIR / slug / "modelo.json"
+        if dm.exists():
+            item["silver"] = read_json(dm)
+        ativos.append(item)
+    out = {"gerado_em": now_iso(), "ativos": ativos}
+    for p in [GOLD_DIR / "modelo_geral.json", DOCS_DATA_DIR / "modelo_geral.json"]:
+        write_json(out, Path(p))
+    log.info("[comparativo] modelo_geral.json ok (%d ativos, %d com silver)", len(ativos), sum(1 for a in ativos if a["silver"]))
     return out

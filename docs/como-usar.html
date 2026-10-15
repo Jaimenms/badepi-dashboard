@@ -4,40 +4,29 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Como usar — BADEPI Dashboard</title>
-  <meta name="description" content="Guia do repositório badepi-dashboard: como baixar os microdados do INPI, construir as camadas bronze, silver (parquet) e gold, e consultar as tabelas de patentes com pandas.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta name="description" content="Guia do repositório badepi-dashboard: os oito arquivos do BADEPI, as camadas bronze, silver e gold, o modelo de dados de patentes, marcas, desenhos industriais e indicações geográficas, exemplos em pandas e o método das derivações.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M8 22V12m8 10V8m8 14v-6' stroke='white' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
 <header class="topbar" id="topbar"></header>
-
 <section class="hero" style="padding:56px 0 40px">
   <div class="container">
     <span class="eyebrow">● Guia do repositório</span>
     <h1>Como usar <span class="grad">os dados</span></h1>
-    <p class="lead">Este repositório baixa os microdados do BADEPI, organiza-os em camadas (bronze → silver → gold) e publica este painel. Tudo em Python, com pandas e parquet, reproduzível em qualquer máquina.</p>
+    <p class="lead">Este repositório baixa os microdados do BADEPI, organiza-os em camadas (bronze → silver → gold) e publica os painéis. Aqui está o modelo de dados de cada ativo, como rodar o pipeline, como consultar os parquet com pandas e como as derivações são calculadas.</p>
+    <div class="subnav" id="subnav"></div>
   </div>
 </section>
 
 <section class="block" id="fonte">
   <div class="container prose">
     <div class="section-head"><span class="eyebrow">Fonte</span><h2>O que é o BADEPI</h2></div>
-    <p>A <strong>Base de Dados de Propriedade Intelectual (BADEPI)</strong> é mantida pela Coordenação-Geral de Economia e Inovação do INPI em cooperação com a OMPI. Reúne, para fins estatísticos, os registros administrativos de cada ativo de PI, com série histórica de 2000 a 2025 e dados pessoais limitados conforme a LGPD. É atualizada uma vez por ano; a versão 12.0 saiu em 13/10/2026.</p>
-    <p>Cada ativo é um arquivo zip com CSVs (separador <code>;</code>, CRLF, encoding misto latin-1/UTF-8) e um dicionário de microdados em XLSX. Patentes tem sete tabelas; marcas, quatro; desenhos, cinco; IG, quatro.</p>
-    <div class="asset-grid">
-      <div class="asset ready">Patentes <span class="st">silver + painel</span></div>
-      <div class="asset ready">Marcas <span class="st">silver + painel</span></div>
-      <div class="asset ready">Desenho Industrial <span class="st">silver + painel</span></div>
-      <div class="asset ready">Indicação Geográfica <span class="st">silver + painel</span></div>
-      <div class="asset">Contratos de Tecnologia <span class="st">bronze</span></div>
-      <div class="asset">Programa de Computador <span class="st">bronze</span></div>
-      <div class="asset">Topografia de Circuito Integrado <span class="st">bronze</span></div>
-      <div class="asset ready">PI e Gênero <span class="st">silver (patentes, marcas, DI)</span></div>
-    </div>
-    <p style="margin-top:14px">Página oficial: <a href="https://www.gov.br/inpi/pt-br/inpi-data/dados-e-series-temporais/badepi" target="_blank" rel="noopener">gov.br/inpi → BADEPI</a>.</p>
+    <p>A <strong>Base de Dados de Propriedade Intelectual (BADEPI)</strong> é mantida pela Coordenação-Geral de Economia e Inovação do INPI em cooperação com a OMPI. Reúne, para fins estatísticos, os registros administrativos de cada ativo de PI, com série histórica de 2000 a 2025 e dados pessoais limitados conforme a LGPD. É atualizada uma vez por ano; a versão 12.0 saiu em 13/10/2026. Página oficial: <a href="https://www.gov.br/inpi/pt-br/inpi-data/dados-e-series-temporais/badepi" target="_blank" rel="noopener">gov.br/inpi → BADEPI</a>.</p>
+    <p>São oito arquivos zip, um por ativo, cada um com CSVs (separador <code>;</code>, CRLF, encoding misto latin-1/UTF-8, campos com espaços à direita) e um dicionário de microdados em XLSX. A tabela abaixo é lida da própria bronze e silver construídas por este repositório:</p>
+    <div class="table-view" style="max-height:none" id="fonte-tabela"><p>Carregando…</p></div>
   </div>
 </section>
 
@@ -47,148 +36,150 @@
     <div class="layers">
       <div class="layer"><h4><span class="dot" style="background:#b87333"></span>Bronze</h4><p>Os zips e CSVs exatamente como o INPI publicou, com manifesto (URL, SHA-256, tamanho, data). Nada é alterado. <code>data/bronze/&lt;ativo&gt;/</code></p></div>
       <div class="layer"><h4><span class="dot" style="background:#a8a9ad"></span>Silver</h4><p>Parquet tipado e limpo: chaves sem espaços, datas reais, vazios como nulos, colunas derivadas (origem, via, situação) e dimensões para relacionamento. <code>data/silver/&lt;ativo&gt;/</code></p></div>
-      <div class="layer"><h4><span class="dot" style="background:#d4af37"></span>Gold</h4><p>Agregações prontas para visualização em JSON pequenos, copiados para <code>docs/data/</code> e servidos pelo GitHub Pages. <code>data/gold/&lt;ativo&gt;/</code></p></div>
+      <div class="layer"><h4><span class="dot" style="background:#d4af37"></span>Gold</h4><p>Agregações prontas para visualização em JSON pequenos, copiados para <code>docs/data/&lt;ativo&gt;/</code> e servidos pelo GitHub Pages. <code>data/gold/&lt;ativo&gt;/</code></p></div>
     </div>
     <pre><code>badepi-dashboard/
-├── src/badepi/            pacote Python (CLI: badepi)
-│   ├── config.py          fontes (8 zips), versão, diretórios
-│   ├── bronze.py          download com validação + extração + manifesto
-│   ├── ioutil.py          leitura dos CSV (encoding misto) e escrita parquet/JSON
-│   ├── silver/            common.py (blocos compartilhados) + patentes, marcas, desenho_industrial, indicacao_geografica
-│   ├── gold/              common.py (agregações) + um módulo por ativo + comparativo (página inicial)
-│   └── reference/         campos tecnológicos OMPI, UFs, países
-├── data/                  bronze / silver / gold (ignorado pelo git)
-├── docs/                  site estático publicado no GitHub Pages
-│   └── data/patentes/*.json
+├── src/badepi/                 pacote Python (CLI: badepi)
+│   ├── config.py               fontes (8 zips do inpidrive), versão, diretórios
+│   ├── bronze.py               download com validação + extração + manifesto
+│   ├── ioutil.py               leitura dos CSV (encoding misto) e escrita parquet/JSON
+│   ├── silver/common.py        blocos compartilhados: depositantes, situação derivada, dimensões
+│   ├── silver/&lt;ativo&gt;.py       patentes, marcas, desenho_industrial, indicacao_geografica
+│   ├── gold/common.py          séries, safras, tempos, UFs, países, ciclo de vida, grafo de transições
+│   ├── gold/&lt;ativo&gt;.py         um por ativo + comparativo.py (página inicial e este guia)
+│   └── reference/              campos tecnológicos OMPI, UFs, países
+├── data/                       bronze / silver / gold (ignorado pelo git)
+├── docs/                       site estático: index, patentes, marcas, desenhos, indicacoes, como-usar
+│   └── data/&lt;ativo&gt;/*.json     gold publicada
 └── tests/</code></pre>
   </div>
 </section>
 
 <section class="block" id="rodar">
   <div class="container prose">
-    <div class="section-head"><span class="eyebrow">Rodar</span><h2>Do zero ao painel em quatro comandos</h2></div>
-    <p>Requisitos: Python 3.11+ e <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">uv</a>. O download completo tem cerca de 500 MB (3 GB extraídos); só patentes são ~130 MB.</p>
+    <div class="section-head"><span class="eyebrow">Rodar</span><h2>Do zero aos painéis em quatro comandos</h2></div>
+    <p>Requisitos: Python 3.11+ e <a href="https://docs.astral.sh/uv/" target="_blank" rel="noopener">uv</a>. O download completo tem cerca de 500 MB (3 GB extraídos). Marcas é o ativo pesado: 19 milhões de despachos, ~1,5 min de silver e 6 GB de RAM.</p>
     <div class="steps">
       <div class="step"><div><strong>Instale as dependências</strong><pre><code>git clone https://github.com/Jaimenms/badepi-dashboard.git
 cd badepi-dashboard
 uv sync</code></pre></div></div>
-      <div class="step"><div><strong>Bronze — baixe e extraia</strong> (todos os ativos, ou só os desejados com <code>-s</code>)<pre><code>uv run badepi bronze                      # os 8 zips
+      <div class="step"><div><strong>Bronze — baixe e extraia</strong> (todos os ativos, ou só os desejados com <code>-s</code>)<pre><code>uv run badepi bronze
 uv run badepi bronze -s patentes -s pi_genero</code></pre></div></div>
-      <div class="step"><div><strong>Silver — transforme em parquet</strong> (patentes ~1 min; marcas ~1,5 min e 6 GB de RAM)<pre><code>uv run badepi silver -s patentes -s marcas -s desenho_industrial -s indicacao_geografica</code></pre></div></div>
-      <div class="step"><div><strong>Gold — gere os JSON do painel</strong> e sirva o site localmente<pre><code>uv run badepi gold                       # todos os ativos prontos + comparativo
+      <div class="step"><div><strong>Silver — transforme em parquet</strong><pre><code>uv run badepi silver                  # patentes, marcas, desenho_industrial, indicacao_geografica
+uv run badepi silver -s marcas --force</code></pre></div></div>
+      <div class="step"><div><strong>Gold — gere os JSON dos painéis</strong> (inclui o comparativo da página inicial e este guia) e sirva o site<pre><code>uv run badepi gold
 python -m http.server -d docs 8000      # abra http://localhost:8000</code></pre></div></div>
     </div>
-    <div class="callout">Atalho: <code>uv run badepi all -s patentes -s pi_genero</code> executa bronze → silver → gold. Use <code>--force</code> para refazer uma camada já construída. A variável <code>BADEPI_DATA_DIR</code> muda a pasta dos dados.</div>
-    <p>Para publicar: faça push na <code>main</code>. O workflow <code>.github/workflows/pages.yml</code> publica a pasta <code>docs/</code> (em <em>Settings → Pages</em>, escolha <em>Source: GitHub Actions</em>).</p>
+    <div class="callout">Atalho: <code>uv run badepi all</code> executa bronze → silver → gold. Use <code>--force</code> para refazer uma camada já construída. A variável <code>BADEPI_DATA_DIR</code> muda a pasta dos dados. Publicação: push na <code>main</code> dispara o workflow que publica <code>docs/</code> no GitHub Pages.</div>
   </div>
 </section>
 
 <section class="block" id="modelo">
   <div class="container">
-    <div class="section-head"><span class="eyebrow">Modelo de dados</span><h2>Tabelas silver</h2><p>Em todos os ativos as tabelas se relacionam pela chave <code>no_pedido</code>; cada ativo tem um fato <code>&lt;prefixo&gt;_deposito</code> (1 linha por pedido, com origem e colunas derivadas) e uma <code>&lt;prefixo&gt;_situacao</code> (situação e marcos), mais depositantes, despachos, classes e dimensões. Datas são <code>datetime64[ms]</code>; vazios são nulos; inteiros usam tipos nullable.</p></div>
-    <div class="filter-row"><div class="seg" id="modelo-seg"><button class="active" data-value="patentes">Patentes</button><button data-value="marcas">Marcas</button><button data-value="desenho_industrial">Desenhos</button><button data-value="indicacao_geografica">Indicações geográficas</button></div></div>
-    <div class="card" style="margin-bottom:18px"><header><div class="titles"><h3>Relacionamentos (exemplo: patentes)</h3><p class="sub">Diagrama lógico: fato (azul), derivada (violeta) e dimensões (cinza); marcas, desenhos e IG seguem a mesma forma</p></div></header>
-      <svg viewBox="0 0 960 420" width="100%" role="img" aria-label="Diagrama de relacionamentos das tabelas silver de patentes" style="max-height:440px">
-        <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>
-        <g stroke="var(--axis)" stroke-width="1.5" fill="none" marker-end="url(#arr)">
-          <path d="M180,80 L395,170"/><path d="M180,150 L395,185"/><path d="M180,220 L395,200"/><path d="M180,290 L395,215"/><path d="M180,360 L395,230"/>
-          <path d="M780,80 L565,170"/><path d="M780,150 L565,185"/><path d="M780,220 L565,200"/><path d="M780,290 L565,215"/><path d="M780,360 L565,230"/>
-          <path d="M480,270 L480,330"/>
-        </g>
-        <g font-family="Inter, system-ui, sans-serif" font-size="13" text-anchor="middle">
-          <g><rect x="395" y="160" width="170" height="80" rx="12" fill="var(--s1)"/><text x="480" y="192" fill="#fff" font-weight="700">ptn_deposito</text><text x="480" y="212" fill="#fff" font-size="11">1 linha por pedido · chave no_pedido</text><text x="480" y="228" fill="#fff" font-size="11">+ origem, via, campo principal</text></g>
-          <g><rect x="395" y="330" width="170" height="56" rx="12" fill="var(--s7)"/><text x="480" y="354" fill="#fff" font-weight="700">ptn_situacao</text><text x="480" y="372" fill="#fff" font-size="11">situação derivada + marcos (datas)</text></g>
-          <g fill="var(--surface-2)" stroke="var(--border)"><rect x="20" y="55" width="160" height="50" rx="10"/><rect x="20" y="125" width="160" height="50" rx="10"/><rect x="20" y="195" width="160" height="50" rx="10"/><rect x="20" y="265" width="160" height="50" rx="10"/><rect x="20" y="335" width="160" height="50" rx="10"/></g>
-          <g fill="var(--ink)" font-weight="600"><text x="100" y="76">ptn_depositante</text><text x="100" y="146">ptn_inventor</text><text x="100" y="216">ptn_despacho</text><text x="100" y="286">ptn_ipc</text><text x="100" y="356">ptn_pct · ptn_prioridade</text></g>
-          <g fill="var(--muted)" font-size="11"><text x="100" y="94">N:1 · no_pedido + no_ordem</text><text x="100" y="164">N:1 · no_pedido + no_ordem</text><text x="100" y="234">N:1 · particionada por ano</text><text x="100" y="304">N:1 · no_pedido + ordem</text><text x="100" y="374">1:1 · N:1</text></g>
-          <g fill="var(--surface-2)" stroke="var(--border)"><rect x="780" y="55" width="160" height="50" rx="10"/><rect x="780" y="125" width="160" height="50" rx="10"/><rect x="780" y="195" width="160" height="50" rx="10"/><rect x="780" y="265" width="160" height="50" rx="10"/><rect x="780" y="335" width="160" height="50" rx="10"/></g>
-          <g fill="var(--ink)" font-weight="600"><text x="860" y="76">dim_campo_tec</text><text x="860" y="146">dim_despacho</text><text x="860" y="216">dim_pais · dim_uf</text><text x="860" y="286">ptn_inventor_genero</text><text x="860" y="356">ptn_depositante_genero</text></g>
-          <g fill="var(--muted)" font-size="11"><text x="860" y="94">35 campos OMPI → setor</text><text x="860" y="164">304 códigos → evento</text><text x="860" y="234">ISO-2 · 27 UFs e regiões</text><text x="860" y="304">N:1 · sexo provável (BR)</text><text x="860" y="374">N:1 · sexo provável (PF BR)</text></g>
-        </g>
-      </svg>
-    </div>
-    <div id="modelo-tabelas"><p class="prose">Carregando o modelo a partir de <code>data/patentes/modelo.json</code>…</p></div>
+    <div class="section-head"><span class="eyebrow">Modelo de dados</span><h2>As tabelas silver de cada ativo</h2>
+      <p>Os quatro ativos seguem o mesmo esqueleto, sempre ligado pela chave <code>no_pedido</code>: um <strong>fato</strong> <code>&lt;prefixo&gt;_deposito</code> (1 linha por pedido, com título/nome, datas, via, origem pelo primeiro depositante e a classificação principal), uma <strong>derivada</strong> <code>&lt;prefixo&gt;_situacao</code> (situação atual, marcos do processo, vigência e tempos), as tabelas <strong>N:1</strong> (depositantes, inventores/autores, despachos, classes, PCT, prioridades, gênero) e as <strong>dimensões</strong> (códigos de despacho com evento, países, UFs, campos tecnológicos). Datas são <code>datetime64[ms]</code>; vazios são nulos; inteiros usam tipos nullable (Int8/Int16/Int32).</p></div>
+    <div class="chips" style="margin-bottom:14px"><span style="--c:var(--s1)">fato (1 linha por pedido)</span><span style="--c:var(--s7)">derivada 1:1</span><span style="--c:var(--axis)">tabelas N:1</span><span style="--c:var(--muted)">dimensões</span></div>
+    <div id="modelo-ativos"><p class="prose">Carregando o modelo a partir de <code>data/modelo_geral.json</code>…</p></div>
   </div>
 </section>
 
 <section class="block" id="pandas">
   <div class="container prose">
     <div class="section-head"><span class="eyebrow">Pandas</span><h2>Consultando a silver</h2></div>
-    <p>Os arquivos são parquet comuns: qualquer ferramenta lê. Com pandas, o helper <code>read_parquet</code> do pacote cuida do dataset particionado de despachos e preserva os tipos nullable.</p>
-    <pre><code>import pandas as pd
-from badepi.ioutil import read_parquet
+    <p>Os arquivos são parquet comuns: qualquer ferramenta lê. Com pandas, o helper <code>read_parquet</code> do pacote cuida dos datasets particionados (<code>ptn_despacho</code> e <code>mrc_despacho</code>, por ano de publicação) e preserva os tipos nullable. O padrão é sempre o mesmo: fato ⨝ situação pela chave, depois os joins N:1 que a análise pedir.</p>
+    <pre><code>from badepi.ioutil import read_parquet
 
-S = "data/silver/patentes"
-dep = read_parquet(f"{S}/ptn_deposito.parquet")
-sit = read_parquet(f"{S}/ptn_situacao.parquet")
-df  = dep.merge(sit, on="no_pedido")
+def fato(ativo, prefixo):
+    S = f"data/silver/{ativo}"
+    dep = read_parquet(f"{S}/{prefixo}_deposito.parquet")
+    sit = read_parquet(f"{S}/{prefixo}_situacao.parquet")
+    return dep.merge(sit, on="no_pedido")
 
-# pedidos de residentes por UF e situação
-(df[df.residente]
-   .pivot_table(index="uf_origem", columns="situacao", values="no_pedido", aggfunc="size", fill_value=0)
-   .sort_values("Concedida", ascending=False)
-   .head(10))
+ptn = fato("patentes", "ptn")            # 702 mil linhas
+mrc = fato("marcas", "mrc")              # 5,15 milhões
+di  = fato("desenho_industrial", "di")   # 158 mil
+ig  = fato("indicacao_geografica", "ig") # 254</code></pre>
+    <h3>Patentes</h3>
+    <pre><code># tempo mediano até a concessão por campo tecnológico (concessões desde 2020)
+dim = read_parquet("data/silver/patentes/dim_campo_tec.parquet")
+rec = ptn[ptn.dt_concessao &gt;= "2020-01-01"]
+(rec.groupby("campo_tec_principal").anos_ate_concessao.median().rename("mediana_anos")
+    .to_frame().join(dim.set_index("campo_tec")).sort_values("mediana_anos"))
 
-# tempo mediano até a concessão por campo tecnológico (concessões desde 2020)
-dim = read_parquet(f"{S}/dim_campo_tec.parquet")
-rec = df[df.dt_concessao &gt;= "2020-01-01"]
-(rec.groupby("campo_tec_principal").anos_ate_concessao.median()
-    .rename("mediana_anos").to_frame().join(dim.set_index("campo_tec")).sort_values("mediana_anos"))
-
-# despachos de 2024 em diante (lê só as partições necessárias)
-desp = read_parquet(f"{S}/ptn_despacho", filters=[("ano_publicacao", "&gt;=", 2024)])
-desp.evento.value_counts().head(10)
-
-# inventores e inventoras de um pedido
-inv = read_parquet(f"{S}/ptn_inventor.parquet")
+# despachos de 2024 em diante (lê só as partições necessárias) e inventores de um pedido
+desp = read_parquet("data/silver/patentes/ptn_despacho", filters=[("ano_publicacao", "&gt;=", 2024)])
+inv  = read_parquet("data/silver/patentes/ptn_inventor.parquet")
 inv[inv.no_pedido == "102012000050"][["no_ordem", "nome", "uf", "cidade"]]</code></pre>
-    <div class="callout">Volumes: <code>ptn_despacho</code> tem 3,9 milhões de linhas e por isso é particionada por <code>ano_publicacao</code> (formato hive). Use o argumento <code>filters</code> ou leia só as colunas necessárias com <code>columns=[...]</code>.</div>
+    <h3>Marcas</h3>
+    <pre><code># taxa de registro por classe de Nice, pedidos de 2015 a 2019
+m = mrc[mrc.ano.between(2015, 2019)]
+(m.groupby("classe_nice_principal").agg(pedidos=("no_pedido", "size"), registrados=("dt_concessao", lambda s: s.notna().sum()))
+  .assign(taxa=lambda t: t.registrados / t.pedidos).sort_values("taxa", ascending=False))
+
+# oposições: pedidos com notificação de oposição (evento 'oposicao') por UF do depositante
+mrc[mrc.dt_oposicao.notna() &amp; mrc.residente].uf_origem.value_counts().head(10)</code></pre>
+    <h3>Desenhos industriais</h3>
+    <pre><code># registros prorrogados ao menos uma vez, por classe de Locarno
+di[di.dt_ultima_prorrogacao.notna()].classe_locarno_principal.value_counts().head(10)
+
+# autores (sem nome na fonte): quantos pedidos têm autor domiciliado fora do Brasil
+aut = read_parquet("data/silver/desenho_industrial/di_autor.parquet")
+aut[aut.pais != "BR"].no_pedido.nunique()</code></pre>
+    <h3>Indicações geográficas</h3>
+    <pre><code># IGs registradas por UF e espécie atual
+ig[ig.situacao == "Concedida"].pivot_table(index="uf_origem", columns="tipo_atual", values="no_pedido", aggfunc="size", fill_value=0)</code></pre>
+    <div class="callout">Volumes: <code>mrc_despacho</code> tem 19 milhões de linhas e <code>ptn_despacho</code> 3,9 milhões; ambas são particionadas por <code>ano_publicacao</code> (formato hive). Use <code>filters=[...]</code> ou leia só as colunas necessárias com <code>columns=[...]</code>.</div>
   </div>
 </section>
 
 <section class="block" id="situacao">
   <div class="container prose">
-    <div class="section-head"><span class="eyebrow">Método</span><h2>Como a situação de um pedido é derivada</h2></div>
-    <p>Os 304 códigos de despacho da RPI são mapeados para ~25 <strong>eventos</strong> (depósito, publicação, exigência, parecer, deferimento, indeferimento, concessão, arquivamento, desarquivamento, restauração, extinção, recurso, recurso provido, nulidade, transferência, trâmite prioritário, licença…). O mapeamento está em <code>src/badepi/silver/patentes.py</code> e a tabela <code>dim_despacho</code> traz o resultado por código.</p>
-    <p>A <strong>situação</strong> de cada pedido usa a <em>última</em> data de cada tipo de evento, nesta ordem:</p>
+    <div class="section-head"><span class="eyebrow">Método</span><h2>Como as derivações são calculadas</h2></div>
+    <h3>Eventos e situação (todos os ativos)</h3>
+    <p>Cada código de despacho da RPI é mapeado para um <strong>evento</strong> (depósito, publicação, oposição, exigência, parecer, deferimento, indeferimento, concessão/registro, arquivamento, desarquivamento, restauração, extinção, prorrogação, desistência, recurso, recurso provido/negado, nulidade, anulação, transferência/alteração, petição, administrativo…). O mapeamento de cada ativo está em <code>silver/&lt;ativo&gt;.py</code> e o resultado por código na tabela <code>dim_despacho</code>.</p>
+    <p>A <strong>situação</strong> de um pedido usa a <em>última</em> data de cada tipo de evento, nesta ordem (<code>silver/common.py</code>, função <code>derive_situacao</code>):</p>
     <ol>
-      <li>Houve <strong>concessão</strong> (16.1)? Então é <em>Anulada</em> se houve anulação posterior (16.4/200), <em>Extinta</em> se a última extinção (21.x, 24.x) é posterior à última restauração, senão <em>Concedida</em>.</li>
-      <li>Desistência ou retirada homologada posterior a qualquer decisão → <em>Retirada</em>.</li>
-      <li><strong>Indeferimento</strong> (9.2) não revertido por recurso provido (100.x) nem seguido de deferimento → <em>Indeferida</em>.</li>
-      <li><strong>Arquivamento</strong> (8.6, 11.x…) não revertido por desarquivamento/restauração → <em>Arquivada</em>.</li>
-      <li><strong>Deferimento</strong> (9.1) sem concessão ainda → <em>Deferida</em>.</li>
+      <li>Houve <strong>concessão/registro</strong>? Então é <em>Anulada</em> se houve anulação posterior; <em>Extinta</em> se a última extinção é posterior à última restauração; senão <em>Concedida</em>.</li>
+      <li><strong>Numeração anulada</strong> (patentes, código 15.21) sem publicação, deferimento nem concessão → <em>Numeração anulada</em>: o depósito nunca se efetivou. Esses pedidos ficam fora do ciclo de vida, do funil e do estoque sem decisão, e os KPIs trazem o total de pedidos efetivos ao lado do bruto.</li>
+      <li>Desistência ou retirada posterior a qualquer decisão → <em>Retirada</em>.</li>
+      <li><strong>Indeferimento</strong> não revertido por recurso provido nem seguido de deferimento → <em>Indeferida</em>.</li>
+      <li><strong>Arquivamento</strong> não revertido por desarquivamento/restauração nem seguido de deferimento → <em>Arquivada</em>.</li>
+      <li><strong>Deferimento</strong> sem concessão → <em>Deferida</em>.</li>
       <li>Caso contrário → <em>Em andamento</em>.</li>
     </ol>
-    <p>Além disso, <code>ptn_situacao</code> guarda os marcos (primeira publicação, primeira exigência, primeiro parecer, deferimento, indeferimento, concessão, último arquivamento e extinção), o fim de vigência legal (20 anos para PI/CA, 15 para MU, contados do depósito), a flag <code>prazo_expirado</code> e os tempos <code>anos_ate_concessao</code> e <code>anos_ate_decisao</code>.</p>
-    <h3>Outras derivações</h3>
+    <p>A tabela de situação guarda também os marcos (primeira publicação, oposição, exigência, parecer, deferimento, indeferimento, concessão, último arquivamento, extinção, desistência, última prorrogação), a primeira decisão de encerramento, o fim da vigência legal, a flag <code>prazo_expirado</code> e os tempos <code>anos_ate_concessao</code> e <code>anos_ate_decisao</code>. "Vigente" = concedida/registrada, não extinta e dentro do prazo legal.</p>
+    <h3>Particularidades por ativo</h3>
     <ul>
-      <li><strong>Natureza</strong> pelo prefixo do número: PI/10/11/12 → PI; MU/20/21/22 → MU; C/13 → CA.</li>
-      <li><strong>Via PCT</strong>: prefixo 11/21, presença em <code>ptn_pct</code> ou despacho 1.1/1.3.</li>
-      <li><strong>Origem</strong>: país/UF/categoria do depositante de ordem 1 (regra do manual do BADEPI).</li>
-      <li><strong>Campo tecnológico principal</strong>: campo da IPC de ordem 1; se ausente, o primeiro campo informado.</li>
-      <li><strong>Categoria do depositante</strong>: expressões regulares sobre o nome normalizado (universidade, instituto de pesquisa, governo, empresa) + tipo de pessoa (F/J) informado para residentes. Pedidos em sigilo chegam sem nome → "não identificado".</li>
+      <li><strong>Patentes.</strong> Vigência de 20 anos (PI e CA) ou 15 (MU) contados do depósito. Natureza pelo prefixo do número (PI/10/11/12 → PI; MU/20/21/22 → MU; C/13 → CA). Via PCT: prefixo 11/21, presença em <code>ptn_pct</code> ou despachos 1.1/1.3. Campo tecnológico principal = campo OMPI da IPC de ordem 1. Os 304 códigos de despacho vêm com descrição na fonte.</li>
+      <li><strong>Marcas.</strong> Sem prazo máximo (registro de 10 anos prorrogável indefinidamente): "vigente" = registrada sem extinção publicada. O BADEPI traz só o código do despacho (<code>DESP###</code> até 2013, <code>IPAS###</code> desde então, em tabelas diferentes); os decisivos foram identificados em publicações da RPI — publicação para oposição (003/IPAS009), oposição (IPAS423), exigência de mérito (IPAS142/136), deferimento (351/IPAS029), registro (400/IPAS158), arquivamento por falta de pagamento (150/IPAS157) ou de cumprimento de exigência (IPAS139), indeferimento (100/IPAS024), recurso (IPAS360/237/235), extinção (IPAS161), petições (IPAS270/271/428) — e os demais ficam como "outros". Classe principal = primeira classe de Nice.</li>
+      <li><strong>Desenhos industriais.</strong> Vigência máxima de 25 anos (10 + 3 × 5). Não há publicação antes do registro (só exame formal). Códigos antigos vêm com descrição; os do sistema novo (fim de 2023) foram inferidos pela cronologia: 860 depósito, 158 registro, 870 prorrogação, 136 exigência, 139 arquivamento, 270 petição deferida, 1214/1233/1252 trâmite via Haia. Numeração BR 31 = via Acordo de Haia; BR 32 = dividido (provável). Classe principal = classe de Locarno de ordem 1.</li>
+      <li><strong>Indicações geográficas.</strong> Registros não expiram. Espécie atual (<code>tipo_atual</code>) incorpora alterações de IP para DO. Classificação OMPI (agroalimentar, vinhos e destilados, artesanato, serviço, outros) da fonte.</li>
+      <li><strong>PI e Gênero.</strong> Sexo provável pelo primeiro nome (Censo 2022) de inventores (patentes) e depositantes pessoa física residentes (patentes, marcas, desenhos); a fonte não traz a ordem, só uma linha por menção.</li>
     </ul>
-    <h3>Despachos de marcas e de desenhos</h3>
-    <p>O BADEPI não traz a descrição dos despachos de <strong>marcas</strong> (só os códigos <code>DESP###</code>, usados até 2013, e <code>IPAS###</code>, desde então). Os códigos decisivos foram identificados em publicações da RPI — publicação para oposição (003/IPAS009), oposição (IPAS423), exigência de mérito (IPAS142/136), deferimento (351/IPAS029), registro (400/IPAS158), arquivamento por falta de pagamento (150/IPAS157), indeferimento (100/IPAS024), recurso (IPAS360/237/235), extinção (IPAS161), petições (IPAS270/271/428) — e estão em <code>silver/marcas.py</code>; os demais entram como "outros". Em <strong>desenhos industriais</strong>, os códigos do sistema novo (fim de 2023) também vêm sem descrição e foram inferidos pela cronologia: 860 depósito, 158 registro, 870 prorrogação, 136 exigência, 139 arquivamento, 270 petição deferida, 1214/1233/1252 trâmite via Haia.</p>
+    <h3>Origem, categoria e nomes</h3>
+    <ul>
+      <li><strong>Origem</strong> do pedido: país, UF, município e categoria do depositante de ordem 1 (regra do manual do BADEPI). Residente = país BR.</li>
+      <li><strong>Categoria do depositante</strong>: expressões regulares sobre o nome normalizado (universidade, instituto de pesquisa, governo, empresa) combinadas com o tipo de pessoa (F/J) informado para residentes. Pedidos em sigilo chegam sem nome → "não identificado".</li>
+      <li><strong>Nome normalizado</strong> (<code>nome_norm</code>): caixa alta, sem acentos nem pontuação; agrupa grafias diferentes do mesmo titular nos rankings.</li>
+    </ul>
     <h3>Ciclo de vida e grafo de transições</h3>
-    <p>O <strong>ciclo de vida</strong> calcula, para cada pedido, o estado a cada meio ano decorrido desde o protocolo (depositado → publicado → vigente / indeferido / arquivado / retirado → extinto ou expirado), usando só os pedidos já observáveis naquele ponto. O <strong>grafo de transições</strong> conta, dentro de cada pedido, os pares de despachos consecutivos (a → b) por ano de depósito; os 45 códigos mais frequentes viram nós e os demais são somados em "OUTROS".</p>
+    <p>O <strong>ciclo de vida</strong> calcula, para cada pedido, o estado a cada meio ano decorrido desde o protocolo (depositado → publicado/em exame → vigente, ou indeferido/arquivado/retirado → extinto ou expirado), usando só os pedidos já observáveis naquele ponto. O <strong>grafo de transições</strong> conta, dentro de cada pedido, os pares de despachos consecutivos (a → b) por ano de depósito; os códigos mais frequentes viram nós e os demais são somados em "OUTROS".</p>
     <h3>Problemas conhecidos da fonte (v12)</h3>
     <ul>
-      <li><code>DT_PEDIDO_ORIGEM</code> em prioridades repete o número da prioridade: as datas ficam nulas.</li>
-      <li>Seis pedidos com número inválido (<code>erro1</code>…<code>erro5</code>, <code>0</code>) e datas-sentinela (0001-01-01, 2099-01-01, 1111-11-11), tratadas como nulas.</li>
-      <li>Encoding misto: a maioria das tabelas está em cp1252, <code>despacho</code> em UTF-8, e há linhas isoladas no outro encoding; a leitura decodifica linha a linha.</li>
-      <li>~6% dos pedidos não têm classificação IPC; ~1.500 pedidos por ano não têm nome de depositante (nunca publicados).</li>
+      <li>Patentes: <code>DT_PEDIDO_ORIGEM</code> em prioridades repete o número da prioridade (datas ficam nulas); seis pedidos com número inválido (<code>erro1</code>…, <code>0</code>); datas-sentinela (0001-01-01, 2099-01-01, 1111-11-11) tratadas como nulas; ~6% dos pedidos sem classificação IPC; cerca de 23 mil pedidos com "numeração anulada" (15.21) que nunca se efetivaram, tratados como situação própria.</li>
+      <li>Marcas e desenhos: despachos sem descrição (ver acima); em marcas, o campo <code>NO_ORDEM</code> do depositante vem vazio na maioria das linhas (tratado como ordem 1).</li>
+      <li>Encoding misto em todos os ativos: a maioria das tabelas está em cp1252, algumas em UTF-8, e há linhas isoladas no outro encoding; a leitura decodifica linha a linha.</li>
+      <li>Pedidos ainda em sigilo (18 meses) não têm nome de depositante nem título.</li>
     </ul>
   </div>
 </section>
 
 <section class="block" id="roadmap">
   <div class="container prose">
-    <div class="section-head"><span class="eyebrow">Próximos ativos</span><h2>Marcas, desenhos, contratos…</h2></div>
-    <p>A bronze já cobre os oito zips. Para adicionar um ativo à silver, crie <code>src/badepi/silver/&lt;slug&gt;.py</code> com uma função <code>build(force)</code> seguindo o padrão de patentes (leitura com <code>read_badepi_csv</code>/<code>iter_badepi_csv</code>, escrita com <code>ParquetSink</code>, manifesto) e marque a fonte com <code>silver_ready=True</code> em <code>config.py</code>. O mesmo vale para <code>gold/&lt;slug&gt;.py</code> e para uma nova página em <code>docs/</code>.</p>
+    <div class="section-head"><span class="eyebrow">Próximos ativos</span><h2>Contratos, programas de computador e topografias</h2></div>
+    <p>Esses três ativos já estão na bronze (tabela da seção Fonte). Para adicionar um à silver, crie <code>src/badepi/silver/&lt;slug&gt;.py</code> com uma função <code>build(force)</code> usando os blocos de <code>silver/common.py</code> (<code>transform_depositante</code>, <code>derive_situacao</code>, <code>dim_despacho_from_parts</code>) e marque a fonte com <code>silver_ready=True</code> em <code>config.py</code>. Na gold, um <code>gold/&lt;slug&gt;.py</code> apoiado em <code>gold/common.py</code>; no site, uma página e um <code>&lt;slug&gt;.js</code> que chama <code>mountCommon</code> de <code>shared.js</code>.</p>
   </div>
 </section>
-
 <footer class="site" id="site-footer"></footer>
 <script type="module" src="assets/js/guide.js"></script>
 </body>

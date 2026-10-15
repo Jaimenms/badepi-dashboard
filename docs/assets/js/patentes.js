@@ -10,6 +10,7 @@ function kpis(d) {
   const k = d.resumo.kpis, sd = d.serie_depositos, dc = d.serie_decisoes, imp = d.impacto, tc = d.tempo_concessao, ano = d.resumo.ano_ultimo;
   kpiTiles([
     { label: `Pedidos em ${ano}`, value: k.pedidos_ultimo_ano, delta: k.pedidos_variacao_pct, spark: sd.total },
+    { label: 'Pedidos efetivos (2000–2025)', value: k.pedidos_efetivos, sub: `${fmt.int(k.pedidos_numeracao_anulada)} com numeração anulada ficam fora`, spark: sd.efetivos },
     { label: `Concessões em ${ano}`, value: k.concessoes_ultimo_ano, delta: k.concessoes_variacao_pct, spark: dc.concessoes },
     { label: 'Patentes vigentes', value: k.patentes_vigentes, sub: 'concedidas e dentro do prazo', spark: d.funil.vigentes },
     { label: 'Tempo mediano até a concessão', value: k.tempo_concessao_mediana_ultimo_ano, decimals: 1, suffix: ' anos', sub: `era ${fmt.dec1(k.tempo_concessao_pior_mediana)} em ${k.tempo_concessao_pior_ano}`, spark: tc.por_ano.map(x => x.mediana) },
@@ -111,5 +112,6 @@ function charts(d) {
 Promise.all([loadJson('./data/patentes/', FILES), fetch('./data/geo/br_uf.json').then(r => r.json())]).then(([d, geo]) => {
   d.geo = geo;
   heroStats(d.resumo.kpis); footerInfo(d.resumo); heroCanvas(); kpis(d); bigNumbers(d); charts(d);
+  const lbl = document.querySelector('[data-kpi="pedidos_total"]')?.nextElementSibling; if (lbl) lbl.textContent = `pedidos de patente (2000–2025) · ${fmt.int(d.resumo.kpis.pedidos_efetivos)} efetivos`;
   mountAll({ d }); reveals(); navSpy();
 }).catch(loadError);

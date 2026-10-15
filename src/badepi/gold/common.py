@@ -19,7 +19,8 @@ ANO_INI, ANO_FIM = 2000, 2025
 ANOS = list(range(ANO_INI, ANO_FIM + 1))
 
 SITUACAO_DETALHADA = ["Concedida (vigente)", "Concedida (prazo expirado)", "Extinta", "Deferida", "Em andamento",
-                      "Indeferida", "Arquivada", "Retirada", "Anulada"]
+                      "Indeferida", "Arquivada", "Retirada", "Anulada", "Numeração anulada"]
+NUM_ANULADA = "Numeração anulada"
 CATEGORIAS = ["empresa", "pessoa_fisica", "universidade", "instituto_pesquisa", "governo", "pessoa_fisica_provavel",
               "nao_classificado", "nao_identificado"]
 CATEGORIA_LABEL = {
@@ -27,7 +28,7 @@ CATEGORIA_LABEL = {
     "instituto_pesquisa": "Institutos de pesquisa", "governo": "Governo", "pessoa_fisica_provavel": "Pessoas físicas (provável)",
     "nao_classificado": "Não classificado", "nao_identificado": "Não identificado (pedido ainda sigiloso)",
 }
-ESTADOS_CICLO = ["Depositado (não publicado)", "Publicado / em exame", "Vigente", "Extinta ou expirada", "Indeferida", "Arquivada", "Retirada"]
+ESTADOS_CICLO = ["Depositado (aguardando publicação)", "Publicado / em exame", "Vigente", "Extinta ou expirada", "Indeferida", "Arquivada", "Retirada"]
 
 
 # ----------------------------------------------------------------------------- utilidades
@@ -61,8 +62,10 @@ def now_iso() -> str:
 def serie_base(df: pd.DataFrame) -> dict:
     g = df.groupby("ano", observed=True)
     res = df[df["residente"] == True]  # noqa: E712
+    na = df["situacao"] == NUM_ANULADA
     return {
         "anos": ANOS, "total": serie(g.size()), "residente": serie(res.groupby("ano").size()),
+        "numeracao_anulada": serie(df[na].groupby("ano").size()), "efetivos": serie(df[~na].groupby("ano").size()),
         "nao_residente": serie(df[df["residente"] == False].groupby("ano").size()),  # noqa: E712
         "origem_nao_informada": serie(df[df["pais_origem"].isna()].groupby("ano").size()),
         "categoria_residente": {k: serie(res[res["categoria_origem"] == k].groupby("ano").size()) for k in CATEGORIAS},
@@ -222,6 +225,9 @@ def genero_depositantes(df: pd.DataFrame, dpt_gen: pd.DataFrame | None) -> dict:
 
 
 def funil(df: pd.DataFrame, etapas_extra: dict[str, pd.Series] | None = None) -> dict:
+    """Funil por safra; pedidos com numeração anulada (nunca efetivados) ficam fora."""
+    keep = df["situacao"] != NUM_ANULADA
+    df = df[keep]; etapas_extra = {k: v[keep] for k, v in (etapas_extra or {}).items()}
     g = df.groupby("ano", observed=True)
     vig = (df["situacao"] == "Concedida") & (df["prazo_expirado"] == False)  # noqa: E712
     decidido = df["dt_deferimento"].notna() | df["dt_indeferimento"].notna() | df["dt_concessao"].notna()
@@ -235,8 +241,9 @@ def funil(df: pd.DataFrame, etapas_extra: dict[str, pd.Series] | None = None) ->
 
 
 def backlog(df: pd.DataFrame) -> list[int]:
-    """Pedidos protocolados e ainda sem decisão de mérito ao fim de cada ano."""
-    decisao = df[["dt_deferimento", "dt_indeferimento", "dt_arquivamento", "dt_concessao", "dt_extincao", "dt_desistencia"]].min(axis=1)
+    """Pedidos protocolados e ainda sem decisão de mérito ao fim de cada ano (numeração anulada conta como encerramento)."""
+    cols = [c for c in ["dt_deferimento", "dt_indeferimento", "dt_arquivamento", "dt_concessao", "dt_extincao", "dt_desistencia", "dt_numeracao_anulada"] if c in df]
+    decisao = df[cols].min(axis=1)
     entrada = df["dt_entrada_inpi"]
     return [int(((entrada <= pd.Timestamp(year=a, month=12, day=31)) & (decisao.isna() | (decisao > pd.Timestamp(year=a, month=12, day=31)))).sum()) for a in ANOS]
 
@@ -247,6 +254,8 @@ def ciclo_vida(df: pd.DataFrame, referencia: pd.Timestamp, max_anos: int = 20, p
     Só pedidos observáveis em cada ponto (protocolo + x ≤ data de referência) entram no denominador.
     """
     passos = np.round(np.arange(0, max_anos + 1e-9, passo), 2)
+    excluidos = int((df["situacao"] == NUM_ANULADA).sum())
+    df = df[df["situacao"] != NUM_ANULADA]
     t0 = df["dt_entrada_inpi"]
     yrs = lambda col: ((col - t0).dt.days / 365.25).to_numpy(dtype="float64", na_value=np.nan)  # noqa: E731
     sit = df["situacao"].astype("string").fillna("")
@@ -288,7 +297,8 @@ def ciclo_vida(df: pd.DataFrame, referencia: pd.Timestamp, max_anos: int = 20, p
         m = anos == a
         if m.sum():
             por_ano[str(a)] = shares(m)
-    return {"passos": [float(x) for x in passos], "estados": ESTADOS_CICLO, "todos": shares(np.ones(len(df), dtype=bool)), "por_ano": por_ano}
+    return {"passos": [float(x) for x in passos], "estados": ESTADOS_CICLO, "todos": shares(np.ones(len(df), dtype=bool)), "por_ano": por_ano,
+            "excluidos_numeracao_anulada": excluidos}
 
 
 def transicoes(desp: pd.DataFrame, df: pd.DataFrame, dim_despacho: pd.DataFrame, top_n: int = 45, min_n: int = 3) -> dict:
@@ -331,7 +341,9 @@ def kpis_base(df: pd.DataFrame, bl: list[int] | None, tempo: dict) -> dict:
     vig = (df["situacao"] == "Concedida") & (df["prazo_expirado"] == False)  # noqa: E712
     med = {r["ano"]: r["mediana"] for r in tempo["por_ano"] if r["n"] >= 500}
     pior = max(med, key=lambda a: med[a] or 0) if med else None
+    na = df["situacao"] == NUM_ANULADA
     k = {"pedidos_total": int(len(df)), "pedidos_ultimo_ano": int(len(ultimo)), "pedidos_variacao_pct": pct(len(ultimo) - len(anterior), len(anterior)),
+         "pedidos_numeracao_anulada": int(na.sum()), "pedidos_efetivos": int((~na).sum()), "pedidos_efetivos_ultimo_ano": int((~na & (df["ano"] == ANO_FIM)).sum()),
          "concessoes_total": int(len(conc)), "concessoes_ultimo_ano": int(len(conc_u)), "concessoes_variacao_pct": pct(len(conc_u) - len(conc_a), len(conc_a)),
          "vigentes": int(vig.sum()), "vigentes_residentes": int((vig & (df["residente"] == True)).sum()),  # noqa: E712
          "share_residentes_total": pct((df["residente"] == True).sum(), df["residente"].notna().sum()),  # noqa: E712

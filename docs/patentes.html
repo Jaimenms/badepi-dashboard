@@ -140,7 +140,7 @@
         <header><div class="titles"><h3>Situação atual por ano de depósito</h3><p class="sub">Como terminaram (ou estão) os pedidos de cada safra</p></div>
           <div class="actions"><div class="seg" data-key="view"><button class="active" data-value="todos">Todos</button><button data-value="res">Residentes</button><button data-value="nres">Não residentes</button></div><button class="icon-btn btn-table">Tabela</button></div></header>
         <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">Situação derivada da cronologia de despachos (ver <a href="como-usar.html#situacao">método</a>). "Arquivada" inclui arquivamentos por falta de pedido de exame ou de pagamento de anuidade.</footer>
+        <footer class="note">Situação derivada da cronologia de despachos (ver <a href="como-usar.html#situacao">método</a>). "Arquivada" inclui arquivamentos por falta de pedido de exame ou de pagamento de anuidade. "Numeração anulada" são pedidos cujo depósito nunca se efetivou (exigência formal preliminar não cumprida; código 15.21).</footer>
       </article>
       <article class="card col-4 reveal" data-chart="funil">
         <header><div class="titles"><h3>Funil de uma safra</h3><p class="sub">Etapas alcançadas pelos pedidos de um ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
@@ -287,7 +287,7 @@
         <li><strong>Fonte.</strong> BADEPI v12 (INPI/CGEI), microdados de patentes publicados em 13/10/2026 com dados até 31/12/2025. Pedidos depositados de 2000 a 2025.</li>
         <li><strong>Contagem.</strong> Um pedido é contado no ano do seu protocolo no INPI (campo DT_ENTRADA_INPI). Para pedidos via PCT, é a data de entrada na fase nacional.</li>
         <li><strong>Origem e residentes.</strong> O país e a UF do primeiro depositante determinam a origem do pedido, conforme o manual do BADEPI.</li>
-        <li><strong>Situação.</strong> Derivada da última ocorrência de cada tipo de despacho (concessão, extinção, indeferimento, arquivamento, restauração, recurso provido…). É uma aproximação estatística, não o status oficial do processo.</li>
+        <li><strong>Situação.</strong> Derivada da última ocorrência de cada tipo de despacho (concessão, extinção, indeferimento, arquivamento, restauração, recurso provido…). É uma aproximação estatística, não o status oficial do processo. Cerca de 23 mil pedidos têm "numeração anulada" (código 15.21: o depósito não se efetivou); eles aparecem como categoria própria na situação por safra e ficam fora do ciclo de vida, do funil e do estoque sem decisão. Os KPIs mostram o total bruto e o total de pedidos efetivos.</li>
         <li><strong>Tempo até a concessão.</strong> Diferença entre a data de protocolo e a publicação da concessão (código 16.1), em anos.</li>
         <li><strong>Campos tecnológicos.</strong> Tabela OMPI de 35 campos (CAMPO_TEC), pela classificação IPC de ordem 1 do pedido; 6% dos pedidos não têm classificação.</li>
         <li><strong>Categorias de depositante.</strong> Heurística sobre o nome (universidade, instituto de pesquisa, governo, empresa) combinada com o tipo de pessoa informado para residentes. Pedidos em sigilo não têm nome e ficam como "não identificado".</li>

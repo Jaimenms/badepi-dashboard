@@ -35,7 +35,7 @@ RELACOES = [
 
 def _ciclo_di(cv: dict) -> dict:
     """Desenhos não têm publicação antes do registro: o primeiro estado é 'depositado / em exame formal'."""
-    old, new = "Depositado (não publicado)", "Depositado / em exame formal"
+    old, new = C.ESTADOS_CICLO[0], "Depositado / em exame formal"
     cv["estados"] = [new if e == old else e for e in cv["estados"]]
     for blk in [cv["todos"], *cv["por_ano"].values()]:
         blk["estados"] = {(new if k == old else k): v for k, v in blk["estados"].items()}

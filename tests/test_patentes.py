@@ -54,10 +54,12 @@ def test_build_situacao_rules():
         ("E", "2010-01-01", "deposito"), ("E", "2013-01-01", "arquivamento"), ("E", "2013-06-01", "restauracao"),
         ("F", "2010-01-01", "deposito"), ("F", "2011-01-01", "desistencia_retirada"),
         ("G", "2024-01-01", "deposito"),
+        ("I", "2015-01-01", "deposito"), ("I", "2015-03-01", "exigencia"), ("I", "2015-09-01", "numeracao_anulada"),
+        ("J", "2015-01-01", "deposito"), ("J", "2015-09-01", "numeracao_anulada"), ("J", "2016-09-01", "publicacao"), ("J", "2020-01-01", "concessao"),
     ])
-    dep = pd.DataFrame({"no_pedido": list("ABCDEFGH"), "natureza": ["PI", "PI", "PI", "MU", "PI", "PI", "PI", "PI"],
-                        "dt_deposito": pd.to_datetime(["2010-01-01"] * 6 + ["2024-01-01", "2025-01-01"]).astype("datetime64[ms]"),
-                        "dt_entrada_inpi": pd.to_datetime(["2010-01-01"] * 6 + ["2024-01-01", "2025-01-01"]).astype("datetime64[ms]")})
+    dep = pd.DataFrame({"no_pedido": list("ABCDEFGHIJ"), "natureza": ["PI", "PI", "PI", "MU", "PI", "PI", "PI", "PI", "PI", "PI"],
+                        "dt_deposito": pd.to_datetime(["2010-01-01"] * 6 + ["2024-01-01", "2025-01-01", "2015-01-01", "2015-01-01"]).astype("datetime64[ms]"),
+                        "dt_entrada_inpi": pd.to_datetime(["2010-01-01"] * 6 + ["2024-01-01", "2025-01-01", "2015-01-01", "2015-01-01"]).astype("datetime64[ms]")})
     dep["no_pedido"] = dep["no_pedido"].astype("string")
     out = build_situacao(ev, dep, pd.Timestamp("2025-12-30")).set_index("no_pedido")
     assert out.loc["A", "situacao"] == "Concedida"
@@ -68,6 +70,8 @@ def test_build_situacao_rules():
     assert out.loc["F", "situacao"] == "Retirada"
     assert out.loc["G", "situacao"] == "Em andamento"
     assert out.loc["H", "situacao"] == "Em andamento" and out.loc["H", "n_despachos"] == 0
+    assert out.loc["I", "situacao"] == "Numeração anulada" and out.loc["I", "dt_primeira_decisao"] == pd.Timestamp("2015-09-01")
+    assert out.loc["J", "situacao"] == "Concedida"  # numeração anulada revertida: publicado e concedido depois
     assert abs(out.loc["A", "anos_ate_concessao"] - 5.41) < 0.02
     assert out.loc["D", "dt_fim_vigencia"].year == 2025  # MU: 15 anos
     assert bool(out.loc["A", "prazo_expirado"]) is False

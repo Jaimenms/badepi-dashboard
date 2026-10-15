@@ -146,7 +146,7 @@ def primeiro_depositante(dpt: pd.DataFrame) -> pd.DataFrame:
 
 EVENTOS_SITUACAO = ["concessao", "anulacao", "extincao", "restauracao", "indeferimento", "recurso_provido", "arquivamento",
                     "desarquivamento", "desistencia_retirada", "deferimento", "publicacao", "exigencia", "parecer",
-                    "pct_fase_nacional", "oposicao", "recurso", "sobrestamento", "prorrogacao"]
+                    "pct_fase_nacional", "oposicao", "recurso", "sobrestamento", "prorrogacao", "numeracao_anulada"]
 
 
 def derive_situacao(ev: pd.DataFrame, deposito: pd.DataFrame, referencia: pd.Timestamp,
@@ -157,6 +157,7 @@ def derive_situacao(ev: pd.DataFrame, deposito: pd.DataFrame, referencia: pd.Tim
     fim_vigencia: função(out) -> Series de datas de fim de vigência legal (None = sem prazo fixo, ex.: marcas).
     Regras (última data de cada tipo de evento):
       1. concessão → 'Anulada' se anulação posterior; 'Extinta' se a última extinção é posterior à última restauração; senão 'Concedida'.
+      1b. numeração anulada (depósito não efetivado) sem publicação, deferimento nem concessão → 'Numeração anulada'.
       2. desistência/retirada posterior a qualquer decisão → 'Retirada'.
       3. indeferimento não revertido por recurso provido nem seguido de deferimento → 'Indeferida'.
       4. arquivamento não revertido por desarquivamento/restauração nem seguido de deferimento → 'Arquivada'.
@@ -178,15 +179,17 @@ def derive_situacao(ev: pd.DataFrame, deposito: pd.DataFrame, referencia: pd.Tim
     concedida = L["concessao"].notna()
     anulada = concedida & gt(anulacao_evento, "concessao")
     extinta = concedida & ~anulada & gt("extincao", "concessao") & gt("extincao", "restauracao")
+    num_anulada = (~concedida & L["numeracao_anulada"].notna() & L["publicacao"].isna() & L["pct_fase_nacional"].isna()
+                   & L["deferimento"].isna())
     ultima_decisao = L[["concessao", "indeferimento", "arquivamento", "deferimento"]].max(axis=1)
-    retirada = ~concedida & L["desistencia_retirada"].notna() & (ultima_decisao.isna() | (L["desistencia_retirada"] >= ultima_decisao))
-    indeferida = ~concedida & ~retirada & gt("indeferimento", "recurso_provido") & gt("indeferimento", "deferimento")
-    arquivada = (~concedida & ~retirada & ~indeferida & gt("arquivamento", "desarquivamento")
+    retirada = ~concedida & ~num_anulada & L["desistencia_retirada"].notna() & (ultima_decisao.isna() | (L["desistencia_retirada"] >= ultima_decisao))
+    indeferida = ~concedida & ~num_anulada & ~retirada & gt("indeferimento", "recurso_provido") & gt("indeferimento", "deferimento")
+    arquivada = (~concedida & ~num_anulada & ~retirada & ~indeferida & gt("arquivamento", "desarquivamento")
                  & gt("arquivamento", "restauracao") & gt("arquivamento", "deferimento"))
-    deferida = ~concedida & ~retirada & ~indeferida & ~arquivada & L["deferimento"].notna()
+    deferida = ~concedida & ~num_anulada & ~retirada & ~indeferida & ~arquivada & L["deferimento"].notna()
     situacao = np.select(
-        [anulada, extinta, concedida, retirada, indeferida, arquivada, deferida],
-        ["Anulada", "Extinta", "Concedida", "Retirada", "Indeferida", "Arquivada", "Deferida"],
+        [anulada, extinta, concedida, num_anulada, retirada, indeferida, arquivada, deferida],
+        ["Anulada", "Extinta", "Concedida", "Numeração anulada", "Retirada", "Indeferida", "Arquivada", "Deferida"],
         default="Em andamento",
     )
     out = pd.DataFrame({
@@ -206,6 +209,7 @@ def derive_situacao(ev: pd.DataFrame, deposito: pd.DataFrame, referencia: pd.Tim
         "dt_extincao": L["extincao"].values,
         "dt_desistencia": L["desistencia_retirada"].values,
         "dt_ultima_prorrogacao": L["prorrogacao"].values,
+        "dt_numeracao_anulada": L["numeracao_anulada"].values,
     })
     if counts is None:  # counts: índice no_pedido; colunas n_despachos, dt_primeiro_despacho, dt_ultimo_despacho, n_exigencias
         counts = ev.groupby("no_pedido", observed=True).agg(
@@ -222,7 +226,7 @@ def derive_situacao(ev: pd.DataFrame, deposito: pd.DataFrame, referencia: pd.Tim
             out[c] = out[c].astype("datetime64[ms]")
     # publicação efetiva (nacional ou fase nacional PCT), 1ª decisão de encerramento, vigência e tempos
     out["dt_publicado"] = out[["dt_publicacao_pedido", "dt_pct_fase_nacional"]].min(axis=1).astype("datetime64[ms]")
-    decisao = out[["dt_concessao", "dt_indeferimento", "dt_arquivamento", "dt_extincao", "dt_desistencia"]].min(axis=1)
+    decisao = out[["dt_concessao", "dt_indeferimento", "dt_arquivamento", "dt_extincao", "dt_desistencia", "dt_numeracao_anulada"]].min(axis=1)
     out["dt_primeira_decisao"] = decisao.where(out["situacao"] != "Em andamento").astype("datetime64[ms]")
     if fim_vigencia is not None:
         out["dt_fim_vigencia"] = fim_vigencia(out).astype("datetime64[ms]")
