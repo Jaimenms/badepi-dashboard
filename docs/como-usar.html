@@ -70,7 +70,7 @@ uv run badepi silver -s marcas --force</code></pre></div></div>
       <div class="step"><div><strong>Gold — gere os JSON dos painéis</strong> (inclui o comparativo da página inicial e este guia) e sirva o site<pre><code>uv run badepi gold
 python -m http.server -d docs 8000      # abra http://localhost:8000</code></pre></div></div>
     </div>
-    <div class="callout">Atalho: <code>uv run badepi all</code> executa bronze → silver → gold. Use <code>--force</code> para refazer uma camada já construída. A variável <code>BADEPI_DATA_DIR</code> muda a pasta dos dados. Publicação: push na <code>main</code> dispara o workflow que publica <code>docs/</code> no GitHub Pages.</div>
+    <div class="callout">Atalho: <code>uv run badepi all</code> executa bronze → silver → gold. Use <code>--force</code> para refazer uma camada já construída. A variável <code>BADEPI_DATA_DIR</code> muda a pasta dos dados. Publicação: manual, em <em>Actions → Publicar GitHub Pages → Run workflow</em> (ou <code>gh workflow run "Publicar GitHub Pages"</code>), para não consumir cota de Actions.</div>
   </div>
 </section>
 
@@ -125,6 +125,11 @@ di[di.dt_ultima_prorrogacao.notna()].classe_locarno_principal.value_counts().hea
 # autores (sem nome na fonte): quantos pedidos têm autor domiciliado fora do Brasil
 aut = read_parquet("data/silver/desenho_industrial/di_autor.parquet")
 aut[aut.pais != "BR"].no_pedido.nunique()</code></pre>
+    <h3>Programas de computador</h3>
+    <pre><code># grupos de tipo de programa mais declarados por universidades
+prg = fato("programa_computador", "prg")
+tp = read_parquet("data/silver/programa_computador/prg_tipo.parquet")
+tp.merge(prg[prg.categoria_origem == "universidade"][["no_pedido"]], on="no_pedido").nome_grupo.value_counts().head(8)</code></pre>
     <h3>Indicações geográficas</h3>
     <pre><code># IGs registradas por UF e espécie atual
 ig[ig.situacao == "Concedida"].pivot_table(index="uf_origem", columns="tipo_atual", values="no_pedido", aggfunc="size", fill_value=0)</code></pre>
@@ -154,6 +159,7 @@ ig[ig.situacao == "Concedida"].pivot_table(index="uf_origem", columns="tipo_atua
       <li><strong>Marcas.</strong> Sem prazo máximo (registro de 10 anos prorrogável indefinidamente): "vigente" = registrada sem extinção publicada. O BADEPI traz só o código do despacho (<code>DESP###</code> até 2013, <code>IPAS###</code> desde então, em tabelas diferentes); os decisivos foram identificados em publicações da RPI — publicação para oposição (003/IPAS009), oposição (IPAS423), exigência de mérito (IPAS142/136), deferimento (351/IPAS029), registro (400/IPAS158), arquivamento por falta de pagamento (150/IPAS157) ou de cumprimento de exigência (IPAS139), indeferimento (100/IPAS024), recurso (IPAS360/237/235), extinção (IPAS161), petições (IPAS270/271/428) — e os demais ficam como "outros". Classe principal = primeira classe de Nice.</li>
       <li><strong>Desenhos industriais.</strong> Vigência máxima de 25 anos (10 + 3 × 5). Não há publicação antes do registro (só exame formal). Códigos antigos vêm com descrição; os do sistema novo (fim de 2023) foram inferidos pela cronologia: 860 depósito, 158 registro, 870 prorrogação, 136 exigência, 139 arquivamento, 270 petição deferida, 1214/1233/1252 trâmite via Haia. Numeração BR 31 = via Acordo de Haia; BR 32 = dividido (provável). Classe principal = classe de Locarno de ordem 1.</li>
       <li><strong>Indicações geográficas.</strong> Registros não expiram. Espécie atual (<code>tipo_atual</code>) incorpora alterações de IP para DO. Classificação OMPI (agroalimentar, vinhos e destilados, artesanato, serviço, outros) da fonte.</li>
+      <li><strong>Programas de computador.</strong> Registro sem exame de mérito, quase imediato desde o e-Software (2017). A tabela de despachos do BADEPI v12 cobre só publicações de 2017 a 2023 (31% dos pedidos): pedidos sem nenhum despacho recebem a situação "Sem despacho na base", e não "em andamento". Os tipos de programa (vários por pedido) são agrupados pelo prefixo do código (AP aplicativos, GI gerenciadores de informações, SO software básico…). Os autores vêm com nome e domicílio.</li>
       <li><strong>PI e Gênero.</strong> Sexo provável pelo primeiro nome (Censo 2022) de inventores (patentes) e depositantes pessoa física residentes (patentes, marcas, desenhos); a fonte não traz a ordem, só uma linha por menção.</li>
     </ul>
     <h3>Origem, categoria e nomes</h3>
@@ -176,8 +182,8 @@ ig[ig.situacao == "Concedida"].pivot_table(index="uf_origem", columns="tipo_atua
 
 <section class="block" id="roadmap">
   <div class="container prose">
-    <div class="section-head"><span class="eyebrow">Próximos ativos</span><h2>Contratos, programas de computador e topografias</h2></div>
-    <p>Esses três ativos já estão na bronze (tabela da seção Fonte). Para adicionar um à silver, crie <code>src/badepi/silver/&lt;slug&gt;.py</code> com uma função <code>build(force)</code> usando os blocos de <code>silver/common.py</code> (<code>transform_depositante</code>, <code>derive_situacao</code>, <code>dim_despacho_from_parts</code>) e marque a fonte com <code>silver_ready=True</code> em <code>config.py</code>. Na gold, um <code>gold/&lt;slug&gt;.py</code> apoiado em <code>gold/common.py</code>; no site, uma página e um <code>&lt;slug&gt;.js</code> que chama <code>mountCommon</code> de <code>shared.js</code>.</p>
+    <div class="section-head"><span class="eyebrow">Próximos ativos</span><h2>Contratos e topografias</h2></div>
+    <p>Esses dois ativos já estão na bronze (tabela da seção Fonte). Para adicionar um à silver, crie <code>src/badepi/silver/&lt;slug&gt;.py</code> com uma função <code>build(force)</code> usando os blocos de <code>silver/common.py</code> (<code>transform_depositante</code>, <code>derive_situacao</code>, <code>dim_despacho_from_parts</code>) e marque a fonte com <code>silver_ready=True</code> em <code>config.py</code>. Na gold, um <code>gold/&lt;slug&gt;.py</code> apoiado em <code>gold/common.py</code>; no site, uma página e um <code>&lt;slug&gt;.js</code> que chama <code>mountCommon</code> de <code>shared.js</code>.</p>
   </div>
 </section>
 <footer class="site" id="site-footer"></footer>

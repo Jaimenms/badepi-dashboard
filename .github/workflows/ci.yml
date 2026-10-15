@@ -1,10 +1,9 @@
 # Testes unitários do pacote badepi (sem baixar dados do INPI).
+# Execução apenas manual (Actions → CI → Run workflow) para não consumir cota.
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   test:

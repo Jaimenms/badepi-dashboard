@@ -11,7 +11,8 @@ from .common import ANOS, now_iso, pct
 
 log = logging.getLogger(__name__)
 ATIVOS = [("patentes", "Patentes", "patentes.html", "concessão"), ("marcas", "Marcas", "marcas.html", "registro"),
-          ("desenho_industrial", "Desenhos industriais", "desenhos.html", "registro"), ("indicacao_geografica", "Indicações geográficas", "indicacoes.html", "registro")]
+          ("desenho_industrial", "Desenhos industriais", "desenhos.html", "registro"), ("indicacao_geografica", "Indicações geográficas", "indicacoes.html", "registro"),
+          ("programa_computador", "Programas de computador", "programas.html", "registro")]
 
 
 def build(force: bool = False):
@@ -34,6 +35,7 @@ def build(force: bool = False):
             "tempo_mediana_por_ano": {str(x["ano"]): x["mediana"] for x in tempo["por_ano"]},
             "tempo_mediana_recente": next((x["mediana"] for x in reversed(tempo["por_ano"]) if x["n"] >= 30), (tempo["por_ano"][-1]["mediana"] if tempo["por_ano"] else None)),
             "funil_total": {kk: sum(fun[kk]) for kk in ["depositados", "publicados", "decididos", "concedidos", "vigentes"] if kk in fun},
+            "nota": r.get("nota"),
             "data_referencia": r.get("data_referencia"),
         })
     out = {"gerado_em": now_iso(), "anos": ANOS, "ativos": itens}
@@ -48,7 +50,7 @@ def build(force: bool = False):
 ATIVOS_TODOS = [
     ("patentes", "Patentes", "ptn", "patentes.html"), ("marcas", "Marcas", "mrc", "marcas.html"),
     ("desenho_industrial", "Desenhos industriais", "di", "desenhos.html"), ("indicacao_geografica", "Indicações geográficas", "ig", "indicacoes.html"),
-    ("contratos", "Contratos de tecnologia", "ctt", None), ("programa_computador", "Programas de computador", "prg", None),
+    ("programa_computador", "Programas de computador", "prg", "programas.html"), ("contratos", "Contratos de tecnologia", "ctt", None),
     ("topografia_ci", "Topografias de circuito integrado", "tci", None), ("pi_genero", "PI e Gênero", "pigen", None),
 ]
 

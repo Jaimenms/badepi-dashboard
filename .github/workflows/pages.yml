@@ -1,11 +1,9 @@
-# Publica a pasta docs/ no GitHub Pages a cada push na main.
-# Em Settings → Pages, escolha "Source: GitHub Actions".
+# Publica a pasta docs/ no GitHub Pages.
+# Execução apenas manual (Actions → Publicar GitHub Pages → Run workflow), para não consumir cota.
+# Em Settings → Pages, a origem deve ser "GitHub Actions".
 name: Publicar GitHub Pages
 
 on:
-  push:
-    branches: [main]
-    paths: ["docs/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:

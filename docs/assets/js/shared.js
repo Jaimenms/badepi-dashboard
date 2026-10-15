@@ -318,7 +318,8 @@ export function loadError(err) {
 /* ---------- cabeçalho e rodapé comuns ---------- */
 export const PAGES = [
   { slug: 'home', label: 'Início', href: './' }, { slug: 'patentes', label: 'Patentes', href: 'patentes.html' }, { slug: 'marcas', label: 'Marcas', href: 'marcas.html' },
-  { slug: 'desenhos', label: 'Desenhos', href: 'desenhos.html' }, { slug: 'indicacoes', label: 'Indicações geográficas', href: 'indicacoes.html' }, { slug: 'guia', label: 'Como usar', href: 'como-usar.html' },
+  { slug: 'desenhos', label: 'Desenhos', href: 'desenhos.html' }, { slug: 'indicacoes', label: 'Indicações geográficas', href: 'indicacoes.html' },
+  { slug: 'programas', label: 'Programas', href: 'programas.html' }, { slug: 'guia', label: 'Como usar', href: 'como-usar.html' },
 ];
 export function chrome({ active, sub = 'v12', sections = [] }) {
   const header = document.getElementById('topbar');
@@ -328,7 +329,8 @@ export function chrome({ active, sub = 'v12', sections = [] }) {
   const sn = document.getElementById('subnav');
   if (sn && sections.length) sn.innerHTML = sections.map(([id, label]) => `<a href="#${id}">${label}</a>`).join('');
   const footer = document.getElementById('site-footer');
-  if (footer) footer.innerHTML = `<div class="container"><div>Dados: <a href="https://www.gov.br/inpi/pt-br/inpi-data/dados-e-series-temporais/badepi" target="_blank" rel="noopener">BADEPI — INPI</a> · Malha: IBGE · Código: MIT · <a href="https://github.com/Jaimenms/badepi-dashboard" target="_blank" rel="noopener">GitHub</a></div><div id="gerado"></div></div>`;
+  if (footer) footer.innerHTML = `<div class="container"><div>Dados: <a href="https://www.gov.br/inpi/pt-br/inpi-data/dados-e-series-temporais/badepi" target="_blank" rel="noopener">BADEPI — INPI</a> · Malha: IBGE · Código: MIT · <a href="https://github.com/Jaimenms/badepi-dashboard" target="_blank" rel="noopener">GitHub</a></div><div id="gerado"></div>
+    <div class="aviso-rodape">Projeto independente, sem vínculo com o INPI. Os números são derivados dos microdados do BADEPI por regras próprias e servem para ilustrar a base e observar tendências; estatísticas oficiais devem ser obtidas diretamente com o INPI (Anuário Estatístico e Indicadores de PI). Nosso agradecimento à equipe de tecnologia e estatística do INPI, que constrói e publica o BADEPI. <a href="./#aviso">Leia o aviso completo</a>.</div></div>`;
 }
 export function wireControls(id) {
   // ranges extras (data-key) dentro do card já são tratados em viz.js; aqui só sincroniza rótulos de/até

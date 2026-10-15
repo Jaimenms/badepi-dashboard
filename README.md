@@ -5,7 +5,7 @@ Pipeline **medalhão** (bronze → silver → gold) para os microdados do
 de Propriedade Intelectual do INPI — e um **dashboard publicado no GitHub Pages** com a leitura
 visual do sistema brasileiro de patentes e do seu impacto.
 
-- Site: https://jaimenms.github.io/badepi-dashboard/ (índice e comparativo) · [Patentes](https://jaimenms.github.io/badepi-dashboard/patentes.html) · [Marcas](https://jaimenms.github.io/badepi-dashboard/marcas.html) · [Desenhos industriais](https://jaimenms.github.io/badepi-dashboard/desenhos.html) · [Indicações geográficas](https://jaimenms.github.io/badepi-dashboard/indicacoes.html)
+- Site: https://jaimenms.github.io/badepi-dashboard/ (índice e comparativo) · [Patentes](https://jaimenms.github.io/badepi-dashboard/patentes.html) · [Marcas](https://jaimenms.github.io/badepi-dashboard/marcas.html) · [Desenhos industriais](https://jaimenms.github.io/badepi-dashboard/desenhos.html) · [Indicações geográficas](https://jaimenms.github.io/badepi-dashboard/indicacoes.html) · [Programas de computador](https://jaimenms.github.io/badepi-dashboard/programas.html)
 - Guia de uso e modelo de dados: https://jaimenms.github.io/badepi-dashboard/como-usar.html
 - Versão da base: BADEPI **v12** (publicada em 13/10/2026, dados até 31/12/2025)
 
@@ -18,8 +18,14 @@ visual do sistema brasileiro de patentes e do seu impacto.
 | Gold | `data/gold/<ativo>/` → `docs/data/<ativo>/` | Agregações em JSON pequenos: séries anuais, situação por safra, **ciclo de vida** (estado dos pedidos a cada meio ano desde o protocolo), tempo até concessão/registro, **grafo de transições entre despachos**, classes, UFs, países, depositantes, gênero, funil; mais `comparativo.json` para a página inicial. |
 | Site | `docs/` | HTML/CSS/JS estático (ECharts + GSAP): página inicial com índice e comparativos, um painel por ativo, modo claro/escuro, vista em tabela em cada gráfico, eixos de tempo sempre nomeados (depósito, concessão, publicação do despacho…). |
 
-Ativos com painel: **patentes**, **marcas**, **desenhos industriais** e **indicações geográficas** (+ a base "PI e Gênero"
-cruzada com os três primeiros). Contratos, programas de computador e topografias estão na bronze.
+Ativos com painel: **patentes**, **marcas**, **desenhos industriais**, **indicações geográficas** e **programas de computador**
+(+ a base "PI e Gênero" cruzada com patentes, marcas, desenhos e programas). Contratos e topografias estão na bronze.
+
+> **Aviso.** Projeto independente, sem vínculo com o INPI. Os números são derivações próprias sobre os microdados do BADEPI
+> (situação, categorias, tempos, ciclo de vida) e podem divergir das estatísticas oficiais, que devem ser obtidas diretamente
+> com o INPI (Anuário Estatístico de Propriedade Industrial e Indicadores de PI). O objetivo é ilustrar a riqueza do BADEPI e
+> observar tendências. O BADEPI existe graças à equipe de tecnologia e estatística do INPI, que constrói, documenta e publica
+> essa base todos os anos: a eles, nosso agradecimento.
 
 ## Rodando
 
@@ -39,8 +45,9 @@ construída; `BADEPI_DATA_DIR` muda a pasta dos dados. Testes: `uv run pytest`.
 
 ## Publicação
 
-Push na `main` dispara `.github/workflows/pages.yml`, que publica a pasta `docs/` no GitHub Pages
-(em *Settings → Pages* a origem deve ser **GitHub Actions**). Os JSON da gold ficam versionados em
+A publicação é **manual**, para não consumir cota de Actions: depois do push, em *Actions → Publicar GitHub Pages → Run workflow*
+(ou `gh workflow run "Publicar GitHub Pages"`). Em *Settings → Pages* a origem deve ser **GitHub Actions**. Os testes também
+rodam só sob demanda (*Actions → CI → Run workflow*, ou `uv run pytest` localmente). Os JSON da gold ficam versionados em
 `docs/data/`, então o site não depende de rodar o pipeline no CI.
 
 ## Despachos sem descrição

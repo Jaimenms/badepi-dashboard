@@ -29,14 +29,19 @@ export function initTheme(toggleBtn) {
 }
 export function onThemeChange(fn) { themeListeners.add(fn); }
 
+// Cada página de ativo usa uma rotação da mesma paleta validada (o par novo que surge, vermelho↔azul,
+// passa nas seis checagens em ambos os modos). Patentes usa a ordem de referência.
+const ROTACAO = { marcas: 1, desenhos: 2, programas: 5, indicacoes: 6 };
+const rotate = (arr, k) => arr.map((_, i) => arr[(i + k) % arr.length]);
 export function tokens() {
   const cs = getComputedStyle(root);
   const v = n => cs.getPropertyValue(n).trim();
   const dark = isDark();
+  const k = ROTACAO[root.dataset.asset] || 0;
   return {
     dark, surface: v('--surface'), page: v('--page'), ink: v('--ink'), ink2: v('--ink-2'), muted: v('--muted'),
     grid: v('--grid'), axis: v('--axis'), accent: v('--accent'), good: v('--good'),
-    series: dark ? SERIES_DARK : SERIES_LIGHT, deemph: v('--deemph'), seq: dark ? SEQ_DARK : SEQ,
+    series: rotate(dark ? SERIES_DARK : SERIES_LIGHT, k), deemph: v('--deemph'), seq: dark ? SEQ_DARK : SEQ,
     font: '"Inter", system-ui, -apple-system, "Segoe UI", sans-serif',
   };
 }

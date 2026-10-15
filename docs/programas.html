@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR" data-asset="programas">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Programas de computador — BADEPI Dashboard</title>
+  <meta name="description" content="Painel dos registros de programa de computador no INPI (BADEPI v12): pedidos por ano, tipos de programa, universidades e empresas, autores, UFs e tempo até o certificado.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M8 22V12m8 10V8m8 14v-6' stroke='white' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.6.0/echarts.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<header class="topbar" id="topbar"></header>
+<section class="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="container">
+    <span class="eyebrow">● BADEPI v12 · INPI · dados até dezembro de 2025</span>
+    <h1>Programas de computador: <span class="grad">registro em dias</span></h1>
+    <p class="lead">O registro de programa de computador não tem exame de mérito: desde o e-Software (2017) o certificado sai em poucos dias. Aqui estão 52 mil pedidos desde 2000 — um ativo dominado por universidades e institutos, com autores nomeados e dezenas de tipos de programa.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="v" data-kpi="pedidos_total" data-count="0">–</div><div class="l">pedidos de registro (2000–2025)</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="certificados" data-count="0">–</div><div class="l">certificados na base (despachos 2017–2023)</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="n_depositantes_distintos" data-count="0">–</div><div class="l">depositantes distintos</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="n_autores_linhas" data-count="0">–</div><div class="l">menções a autores</div></div>
+    </div>
+    <div class="subnav" id="subnav"></div>
+  </div>
+</section>
+<div class="container"><div class="kpi-row" id="kpis" aria-label="Indicadores principais"></div></div>
+
+<section class="block" id="panorama"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Panorama</span><h2>26 anos de registros de software</h2><p>Pedidos contados pelo ano de protocolo no INPI. Quase todos são de residentes.</p></div>
+  <div class="grid">
+    <article class="card col-8 reveal" data-chart="dep-categoria"><header><div class="titles"><h3>Quem registra software</h3><p class="sub">Pedidos por categoria do primeiro depositante, por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Categoria inferida do nome e do tipo de pessoa (heurística). Universidades e institutos federais respondem por quase um terço dos pedidos.</footer></article>
+    <article class="card col-4 reveal" data-chart="dep-pfpj"><header><div class="titles"><h3>Pessoas físicas e jurídicas</h3><p class="sub">Primeiro depositante, por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="dep-autores"><header><div class="titles"><h3>Autores e tipos por pedido</h3><p class="sub">Média anual</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart short"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="prg-dias"><header><div class="titles"><h3>Dias até o certificado</h3><p class="sub">Mediana por ano de expedição do certificado (despachos disponíveis de 2017 a 2023)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart short"></div><div class="table-view hidden"></div><footer class="note">Com o e-Software o registro passou a ser automático após a validação formal. 2017 fica fora: foi o ano de regularização em massa de pedidos antigos (mediana de quase quatro anos).</footer></article>
+  </div>
+</div></section>
+
+<section class="block" id="tipos"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Tipos</span><h2>Que software é registrado</h2><p>Cada pedido declara até cinco tipos de programa (tabela do INPI, código de duas letras + número). Aqui contam-se todas as menções.</p></div>
+  <div class="grid">
+    <article class="card col-6 reveal" data-chart="tipos-grupos"><header><div class="titles"><h3>Grupos de tipo de programa</h3><p class="sub">Menções 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="tipos-area"><header><div class="titles"><h3>Os sete maiores grupos ao longo do tempo</h3><p class="sub">Menções por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart xtall"></div><div class="table-view hidden"></div><footer class="note">Inteligência artificial e aplicações técnico-científicas crescem com a entrada das universidades.</footer></article>
+    <article class="card col-12 reveal" data-chart="tipos-top"><header><div class="titles"><h3>Os 40 tipos mais declarados</h3><p class="sub">Menções 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart" style="height:640px"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="jornada"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Jornada</span><h2>Do pedido ao certificado</h2><p>A tabela de despachos do BADEPI cobre só publicações de 2017 a 2023, por isso a situação dos demais pedidos aparece como "sem despacho na base".</p></div>
+  <div class="grid">
+    <article class="card col-8 reveal" data-chart="sit-coorte"><header><div class="titles"><h3>Situação por ano de depósito</h3><p class="sub">Com certificado, extinto (renúncia) ou sem despacho na base</p></div><div class="actions"><div class="seg" data-key="view"><button class="active" data-value="todos">Todos</button><button data-value="res">Residentes</button><button data-value="nres">Não residentes</button></div><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-4 reveal" data-chart="imp-concessoes"><header><div class="titles"><h3>Certificados expedidos por ano</h3><p class="sub">Por ano de publicação na RPI (2017–2023)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="eventos"><header><div class="titles"><h3>Atividade do INPI por tipo de despacho</h3><p class="sub">Pedidos distintos com cada evento, por ano de publicação na RPI</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="gen-dep"><header><div class="titles"><h3>Mulheres entre depositantes pessoa física</h3><p class="sub">Residentes, sexo provável pelo primeiro nome (BADEPI PI e Gênero)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="quem"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Quem</span><h2>Quem registra programas</h2></div>
+  <div class="grid">
+    <article class="card col-8 reveal" data-chart="race"><header><div class="titles"><h3>Corrida dos depositantes</h3><p class="sub">Pedidos acumulados desde 2000 — os 12 maiores a cada ano</p></div><div class="actions"><button class="icon-btn btn-play">▶ Reproduzir</button><button class="icon-btn btn-table">Tabela</button></div></header><div class="chips"><span style="--c:var(--s1)">Universidade</span><span style="--c:var(--s2)">Empresa</span><span style="--c:var(--s3)">Instituto de pesquisa</span><span style="--c:var(--s4)">Pessoa física</span><span style="--c:var(--s5)">Governo</span></div><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-4 reveal" data-chart="top-dep"><header><div class="titles"><h3>Maiores depositantes</h3><p class="sub">Pedidos 2000–2025, pelo primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="filter-row"><div class="seg" data-key="view"><button class="active" data-value="top_geral">Geral</button><button data-value="top_universidades">Universidades</button><button data-value="top_empresas_residentes">Empresas</button><button data-value="top_institutos">Institutos</button></div></div><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="onde"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Onde</span><h2>A geografia do software registrado</h2></div>
+  <div class="grid">
+    <article class="card col-6 reveal" data-chart="mapa"><header><div class="titles"><h3>Pedidos por UF</h3><p class="sub">Primeiro depositante domiciliado no Brasil</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="filter-row"><div class="seg" data-key="view"><button class="active" data-value="total">Pedidos</button><button data-value="ultimo_ano">Último ano</button></div></div><div class="chart map"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="regioes"><header><div class="titles"><h3>Pedidos por região</h3><p class="sub">Por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart map"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="municipios"><header><div class="titles"><h3>Municípios com mais pedidos</h3><p class="sub">Pelo município do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="autores-uf"><header><div class="titles"><h3>Autores por UF</h3><p class="sub">Menções a autores domiciliados no Brasil, 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="metodo"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Método</span><h2>Como ler estes números</h2></div>
+  <div class="prose reveal"><ul>
+    <li><strong>Fonte.</strong> BADEPI v12 (INPI/CGEI), microdados de programa de computador: 51.890 pedidos depositados de 2000 a 2025, 198 mil menções a tipos de programa, 143 mil menções a autores.</li>
+    <li><strong>Despachos.</strong> A tabela cobre só publicações de 2017 a 2023 (31% dos pedidos). "Com certificado" = despacho 730 (expedição do certificado) ou 120 (concessão); pedidos sem nenhum despacho ficam como "sem despacho na base". Não há ciclo de vida nem grafo de transições por isso.</li>
+    <li><strong>Vigência.</strong> O registro vale 50 anos a partir de 1º de janeiro do ano seguinte à criação; nenhum registro da base expirou.</li>
+    <li><strong>Tipos.</strong> Grupos pelo prefixo do código do INPI (AP aplicativos, GI gerenciadores de informações, AT automação, SO software básico, FA ferramentas de apoio, TC técnico-científico, IA inteligência artificial…); um pedido pode declarar vários.</li>
+  </ul></div>
+</div></section>
+<footer class="site" id="site-footer"></footer>
+<script type="module" src="assets/js/programas.js"></script>
+</body>
+</html>

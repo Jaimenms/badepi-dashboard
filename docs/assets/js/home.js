@@ -2,14 +2,15 @@
 import { initTheme, register, mountAll, fmt, ax, mk, tableYears, tableRows, countUp, countUpOnView } from './viz.js';
 import { chrome, heroCanvas, reveals, navSpy, loadError, tip, X, pctOf, setText } from './shared.js';
 
-chrome({ active: 'home', sub: 'v12', sections: [['ativos', 'Ativos'], ['comparativo', 'Comparativo'], ['sobre', 'Sobre']] });
+chrome({ active: 'home', sub: 'v12', sections: [['ativos', 'Ativos'], ['comparativo', 'Comparativo'], ['aviso', 'Aviso'], ['sobre', 'Sobre']] });
 initTheme(document.getElementById('theme-toggle'));
-const ICON = { patentes: '⚙️', marcas: '™️', desenho_industrial: '🎨', indicacao_geografica: '📍' };
-const COLOR = { patentes: 'var(--s1)', marcas: 'var(--s2)', desenho_industrial: 'var(--s3)', indicacao_geografica: 'var(--s7)' };
+const ICON = { patentes: '⚙️', marcas: '™️', desenho_industrial: '🎨', indicacao_geografica: '📍', programa_computador: '💻' };
+const COLOR = { patentes: 'var(--s1)', marcas: 'var(--s2)', desenho_industrial: 'var(--s3)', indicacao_geografica: 'var(--s7)', programa_computador: 'var(--s6)' };
 const DESC = { patentes: 'Invenções e modelos de utilidade: 702 mil pedidos, tempo de concessão, campos tecnológicos, inventores.',
   marcas: 'O maior volume do INPI: 5 milhões de pedidos, classes de Nice, oposições, registros vigentes.',
   desenho_industrial: 'A forma dos produtos: 158 mil pedidos, registro em meses, prorrogações, classes de Locarno.',
-  indicacao_geografica: 'Territórios reconhecidos: 254 pedidos, 157 IGs registradas, explorador completo.' };
+  indicacao_geografica: 'Territórios reconhecidos: 254 pedidos, 157 IGs registradas, explorador completo.',
+  programa_computador: 'Registro em dias: 52 mil pedidos, universidades em peso, tipos de programa e autores.' };
 
 function cards(c) {
   const host = document.getElementById('assets');
@@ -34,7 +35,7 @@ function charts(c) {
     series: A.map((a, i) => mk.line(a.label, a.share_residentes_serie, t.series[i])) }, table: tableYears(anos, Object.fromEntries(A.map(a => [a.label + ' (%)', a.share_residentes_serie]))) }));
   register('cmp-tempo', ({ t }) => ({ option: { legend: {}, tooltip: { trigger: 'axis', formatter: p => tip(p, { fmtv: fmt.anos }) }, xAxis: ax.time(t, anos, 'Ano de publicação da concessão ou do registro na RPI'), yAxis: ax.val(t, { formatter: v => v + ' a', min: 0 }),
     series: A.map((a, i) => mk.line(a.label, anos.map(y => a.tempo_mediana_por_ano[String(y)] ?? null), t.series[i], { connectNulls: true })) }, table: tableYears(anos, Object.fromEntries(A.map(a => [a.label + ' (anos)', anos.map(y => a.tempo_mediana_por_ano[String(y)] ?? null)]))) }));
-  const GROUPS = [['Concedida/registrada e vigente', ['Concedida (vigente)']], ['Concedida, hoje extinta ou expirada', ['Concedida (prazo expirado)', 'Extinta', 'Anulada']], ['Deferida', ['Deferida']], ['Em andamento', ['Em andamento']], ['Indeferida', ['Indeferida']], ['Arquivada', ['Arquivada']], ['Retirada', ['Retirada']], ['Numeração anulada', ['Numeração anulada']]];
+  const GROUPS = [['Concedida/registrada e vigente', ['Concedida (vigente)']], ['Concedida, hoje extinta ou expirada', ['Concedida (prazo expirado)', 'Extinta', 'Anulada']], ['Em andamento (inclui deferidas)', ['Em andamento', 'Deferida']], ['Indeferida', ['Indeferida']], ['Arquivada', ['Arquivada']], ['Retirada', ['Retirada']], ['Numeração anulada (patentes)', ['Numeração anulada']], ['Sem despacho na base (programas)', ['Sem despacho na base']]];
   register('cmp-situacao', ({ t }) => { const vals = A.map(a => { const n = Object.values(a.situacao_total).reduce((x, y) => x + y, 0); return GROUPS.map(([, keys]) => pctOf(keys.reduce((s, k) => s + (a.situacao_total[k] || 0), 0), n)); });
     return { option: { legend: { type: 'scroll' }, grid: { left: 24, right: 16, top: 52, bottom: 6, containLabel: true }, tooltip: { trigger: 'axis', formatter: p => tip(p, { fmtv: fmt.pct }) }, xAxis: ax.val(t, { formatter: v => v + '%', max: 100 }), yAxis: ax.catY(t, A.map(a => a.label), { width: 220, fontSize: 12 }),
       series: GROUPS.map(([name], k) => ({ name, type: 'bar', stack: 'total', data: vals.map(v => v[k]), itemStyle: { color: t.series[k], borderColor: t.surface, borderWidth: 1 }, barMaxWidth: 34 })) },

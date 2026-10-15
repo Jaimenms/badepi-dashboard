@@ -20,7 +20,7 @@
   <div class="container">
     <span class="eyebrow">● BADEPI v12 · INPI · dados até dezembro de 2025</span>
     <h1>Propriedade industrial no Brasil, <span class="grad">em dados abertos</span></h1>
-    <p class="lead">O BADEPI reúne os microdados de tudo o que foi pedido ao INPI desde 2000. Este site transforma essa base pública em quatro painéis — patentes, marcas, desenhos industriais e indicações geográficas — com a mesma leitura: quanto se pede, quem pede, de onde, quanto tempo leva e qual o impacto.</p>
+    <p class="lead">O BADEPI reúne os microdados de tudo o que foi pedido ao INPI desde 2000. Este site transforma essa base pública em cinco painéis — patentes, marcas, desenhos industriais, indicações geográficas e programas de computador — com a mesma leitura: quanto se pede, quem pede, de onde, quanto tempo leva e qual o impacto.</p>
     <div class="hero-stats">
       <div class="hero-stat"><div class="v" id="h-pedidos" data-count="0">–</div><div class="l">pedidos de proteção (2000–2025)</div></div>
       <div class="hero-stat"><div class="v" id="h-concedidos" data-count="0">–</div><div class="l">direitos concedidos ou registrados</div></div>
@@ -48,11 +48,19 @@
   </div>
 </div></section>
 
+<section class="block" id="aviso"><div class="container">
+  <div class="aviso reveal">
+    <h2>Um aviso honesto, e um agradecimento</h2>
+    <p><strong>Este site não é do INPI e não traz estatísticas oficiais.</strong> É um exercício independente que lê os microdados públicos do BADEPI e os organiza por regras próprias: a situação de cada pedido, as categorias de depositante, os tempos até a decisão e o ciclo de vida são derivações nossas, feitas a partir dos despachos, e podem divergir dos números que o Instituto publica. Quem precisa de dados oficiais deve obtê-los diretamente com o INPI, no <a href="https://www.gov.br/inpi/pt-br/central-de-conteudo/estatisticas" target="_blank" rel="noopener">Anuário Estatístico de Propriedade Industrial, nas Tabelas Completas dos Indicadores de PI</a> e nos demais canais do Instituto. O que esta página quer é só mostrar a riqueza de informação que o BADEPI oferece e ajudar a enxergar tendências.</p>
+    <p>E o BADEPI só existe porque a equipe de tecnologia e de estatística do INPI construiu, documentou e mantém, ano após ano, uma base aberta com milhões de registros administrativos, dicionários de dados por ativo, numeração consistente entre tabelas e cuidado com a LGPD. Poucos escritórios de propriedade industrial no mundo publicam microdados com essa abrangência e essa regularidade. Cada gráfico aqui é, antes de tudo, uma homenagem a esse trabalho: obrigado.</p>
+  </div>
+</div></section>
+
 <section class="block" id="sobre"><div class="container">
   <div class="section-head reveal"><span class="eyebrow">Sobre</span><h2>Como este site é feito</h2></div>
   <div class="prose reveal">
     <p>Um pipeline em Python baixa os oito zips do BADEPI (camada <strong>bronze</strong>), transforma os CSVs em parquet tipado e relacionado (<strong>silver</strong>) e gera as agregações em JSON que estas páginas leem (<strong>gold</strong>). Tudo é reproduzível com quatro comandos e está documentado em <a href="como-usar.html">Como usar</a>, incluindo o modelo de dados de cada ativo e as regras de derivação da situação dos pedidos.</p>
-    <p>Contratos de tecnologia, programas de computador e topografias de circuito integrado já estão na bronze e são os próximos painéis.</p>
+    <p>Contratos de tecnologia e topografias de circuito integrado já estão na bronze e são os próximos painéis.</p>
   </div>
 </div></section>
 <footer class="site" id="site-footer"></footer>

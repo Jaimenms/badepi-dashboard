@@ -242,3 +242,48 @@ nav.primary a.current:hover { background: var(--accent); color: #fff; }
 .tag.bad { background: color-mix(in srgb, var(--s8) 18%, var(--surface)); color: var(--s8); }
 
 #fonte-tabela th, #fonte-tabela td { white-space: normal; }
+
+/* ==========================================================================
+   Cores por ativo: cada página de ativo redefine o acento da interface e a ordem
+   da paleta categórica (rotação validada da mesma paleta; ver viz.js tokens()).
+   ========================================================================== */
+.hero h1 .grad { background: linear-gradient(90deg, var(--accent), var(--grad-b, var(--s7))); -webkit-background-clip: text; background-clip: text; color: transparent; }
+html[data-asset="marcas"] { --accent: #eb6834; --accent-ink: #b5441a; --accent-soft: #fbe0d4; --grad-b: #e34948; --hero-grad-a: #fde5da; --hero-grad-c: #fff1c2;
+  --s1: #eb6834; --s2: #1baf7a; --s3: #eda100; --s4: #e87ba4; --s5: #008300; --s6: #6250d6; --s7: #e34948; --s8: #2a78d6; }
+html[data-asset="desenhos"] { --accent: #1baf7a; --accent-ink: #0e7a54; --accent-soft: #d2f2e5; --grad-b: #2a78d6; --hero-grad-a: #d6f3e8; --hero-grad-c: #dbe9fb;
+  --s1: #1baf7a; --s2: #eda100; --s3: #e87ba4; --s4: #008300; --s5: #6250d6; --s6: #e34948; --s7: #2a78d6; --s8: #eb6834; }
+html[data-asset="indicacoes"] { --accent: #6250d6; --accent-ink: #4a3aa7; --accent-soft: #e2ddf8; --grad-b: #e87ba4; --hero-grad-a: #e5e0fb; --hero-grad-c: #fde9dc;
+  --s1: #6250d6; --s2: #e34948; --s3: #2a78d6; --s4: #eb6834; --s5: #1baf7a; --s6: #eda100; --s7: #e87ba4; --s8: #008300; }
+html[data-asset="programas"] { --accent: #008300; --accent-ink: #006300; --accent-soft: #d4f0d4; --grad-b: #1baf7a; --hero-grad-a: #d9f1d9; --hero-grad-c: #dbe9fb;
+  --s1: #008300; --s2: #6250d6; --s3: #e34948; --s4: #2a78d6; --s5: #eb6834; --s6: #1baf7a; --s7: #eda100; --s8: #e87ba4; }
+@media (prefers-color-scheme: dark) {
+  html[data-asset="marcas"]:not([data-theme="light"]) { --accent: #d95926; --accent-ink: #f1a07f; --accent-soft: #6b2a10; --grad-b: #e66767; --hero-grad-a: #3a1a0e; --hero-grad-c: #2a2210;
+    --s1: #d95926; --s2: #199e70; --s3: #c98500; --s4: #d55181; --s5: #008300; --s6: #9085e9; --s7: #e66767; --s8: #3987e5; }
+  html[data-asset="desenhos"]:not([data-theme="light"]) { --accent: #199e70; --accent-ink: #7fd9b5; --accent-soft: #0f4a35; --grad-b: #3987e5; --hero-grad-a: #0f2e23; --hero-grad-c: #10233d;
+    --s1: #199e70; --s2: #c98500; --s3: #d55181; --s4: #008300; --s5: #9085e9; --s6: #e66767; --s7: #3987e5; --s8: #d95926; }
+  html[data-asset="indicacoes"]:not([data-theme="light"]) { --accent: #9085e9; --accent-ink: #b9b1f3; --accent-soft: #2c2470; --grad-b: #d55181; --hero-grad-a: #1d1840; --hero-grad-c: #2a1a12;
+    --s1: #9085e9; --s2: #e66767; --s3: #3987e5; --s4: #d95926; --s5: #199e70; --s6: #c98500; --s7: #d55181; --s8: #008300; }
+  html[data-asset="programas"]:not([data-theme="light"]) { --accent: #1a9a1a; --accent-ink: #7fd77f; --accent-soft: #0f3d0f; --grad-b: #199e70; --hero-grad-a: #0f2a0f; --hero-grad-c: #10233d;
+    --s1: #008300; --s2: #9085e9; --s3: #e66767; --s4: #3987e5; --s5: #d95926; --s6: #199e70; --s7: #c98500; --s8: #d55181; }
+}
+html[data-asset="marcas"][data-theme="dark"] { --accent: #d95926; --accent-ink: #f1a07f; --accent-soft: #6b2a10; --grad-b: #e66767; --hero-grad-a: #3a1a0e; --hero-grad-c: #2a2210;
+  --s1: #d95926; --s2: #199e70; --s3: #c98500; --s4: #d55181; --s5: #008300; --s6: #9085e9; --s7: #e66767; --s8: #3987e5; }
+html[data-asset="desenhos"][data-theme="dark"] { --accent: #199e70; --accent-ink: #7fd9b5; --accent-soft: #0f4a35; --grad-b: #3987e5; --hero-grad-a: #0f2e23; --hero-grad-c: #10233d;
+  --s1: #199e70; --s2: #c98500; --s3: #d55181; --s4: #008300; --s5: #9085e9; --s6: #e66767; --s7: #3987e5; --s8: #d95926; }
+html[data-asset="indicacoes"][data-theme="dark"] { --accent: #9085e9; --accent-ink: #b9b1f3; --accent-soft: #2c2470; --grad-b: #d55181; --hero-grad-a: #1d1840; --hero-grad-c: #2a1a12;
+  --s1: #9085e9; --s2: #e66767; --s3: #3987e5; --s4: #d95926; --s5: #199e70; --s6: #c98500; --s7: #d55181; --s8: #008300; }
+html[data-asset="programas"][data-theme="dark"] { --accent: #1a9a1a; --accent-ink: #7fd77f; --accent-soft: #0f3d0f; --grad-b: #199e70; --hero-grad-a: #0f2a0f; --hero-grad-c: #10233d;
+  --s1: #008300; --s2: #9085e9; --s3: #e66767; --s4: #3987e5; --s5: #d95926; --s6: #199e70; --s7: #c98500; --s8: #d55181; }
+
+/* aviso (mea culpa) */
+.aviso { border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent); background: linear-gradient(135deg, color-mix(in srgb, var(--accent-soft) 55%, var(--surface)), var(--surface)); border-radius: var(--radius); padding: 24px 26px; }
+.aviso h2 { font-size: 22px; margin-bottom: 10px; }
+.aviso p { color: var(--ink-2); margin-bottom: 10px; }
+.aviso p:last-child { margin-bottom: 0; }
+footer.site .aviso-rodape { width: 100%; color: var(--muted); font-size: 12.5px; margin-top: 10px; border-top: 1px dashed var(--border); padding-top: 10px; }
+
+/* minigráficos da página inicial: um por ativo */
+#cmp-mini { grid-template-columns: repeat(5, 1fr); }
+#cmp-mini > .card { grid-column: auto; }
+@media (max-width: 1100px) { #cmp-mini { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 640px) { #cmp-mini { grid-template-columns: 1fr; } }

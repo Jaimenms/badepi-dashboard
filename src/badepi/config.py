@@ -61,7 +61,7 @@ SOURCES: dict[str, Source] = {
         Source("desenho_industrial", "di", "Desenho Industrial", "lhf76AMnV9ZQRQU", silver_ready=True),
         Source("indicacao_geografica", "ig", "Indicação Geográfica", "1AG5jwKf9JZkNYl", silver_ready=True),
         Source("contratos", "ctt", "Contratos de Tecnologia", "st9Qc409XUtnuWV"),
-        Source("programa_computador", "prg", "Programa de Computador", "l3NBlP1i9WWnZKE"),
+        Source("programa_computador", "prg", "Programa de Computador", "l3NBlP1i9WWnZKE", silver_ready=True),
         Source("topografia_ci", "tci", "Topografia de Circuito Integrado", "6MeSqSiYXoxPVAX"),
         Source("pi_genero", "pigen", "PI e Gênero", "gRN41UuBt8NdlEB"),
     ]
