@@ -1,0 +1,17 @@
+# dados (camadas bronze/silver/gold ficam fora do git)
+/data/
+*.part
+
+# python
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+
+# sistema / editores
+.DS_Store
+.idea/
+.vscode/

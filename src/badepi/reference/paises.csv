@@ -1,0 +1,263 @@
+pais;iso3;nome
+AD;AND;Andorra
+AE;ARE;Emirados Árabes Unidos
+AF;AFG;Afeganistão
+AG;ATG;Antigua and Barbuda
+AI;AIA;Anguilla
+AL;ALB;Albânia
+AM;ARM;Armênia
+AN;;Antilhas Holandesas (legado)
+AO;AGO;Angola
+AP;;ARIPO
+AQ;ATA;Antarctica
+AR;ARG;Argentina
+AS;ASM;American Samoa
+AT;AUT;Áustria
+AU;AUS;Austrália
+AW;ABW;Aruba
+AX;ALA;Ilhas Åland
+AZ;AZE;Azerbaijão
+BA;BIH;Bósnia e Herzegovina
+BB;BRB;Barbados
+BD;BGD;Bangladesh
+BE;BEL;Bélgica
+BF;BFA;Burkina Faso
+BG;BGR;Bulgária
+BH;BHR;Bahrein
+BI;BDI;Burundi
+BJ;BEN;Benin
+BL;BLM;Saint Barthélemy
+BM;BMU;Bermudas
+BN;BRN;Brunei
+BO;BOL;Bolívia
+BQ;BES;Bonaire, Sint Eustatius and Saba
+BR;BRA;Brasil
+BS;BHS;Bahamas
+BT;BTN;Bhutan
+BV;BVT;Bouvet Island
+BW;BWA;Botswana
+BY;BLR;Belarus
+BZ;BLZ;Belize
+CA;CAN;Canadá
+CC;CCK;Cocos (Keeling) Islands
+CD;COD;Congo (RDC)
+CF;CAF;Central African Republic
+CG;COG;Congo
+CH;CHE;Suíça
+CI;CIV;Costa do Marfim
+CK;COK;Cook Islands
+CL;CHL;Chile
+CM;CMR;Camarões
+CN;CHN;China
+CO;COL;Colômbia
+CR;CRI;Costa Rica
+CS;;Tchecoslováquia (legado)
+CU;CUB;Cuba
+CV;CPV;Cabo Verde
+CW;CUW;Curaçao
+CX;CXR;Christmas Island
+CY;CYP;Chipre
+CZ;CZE;Tchéquia
+DD;;Alemanha Oriental (legado)
+DE;DEU;Alemanha
+DJ;DJI;Djibouti
+DK;DNK;Dinamarca
+DM;DMA;Dominica
+DO;DOM;República Dominicana
+DZ;DZA;Argélia
+EA;;Organização Eurasiática de Patentes
+EC;ECU;Equador
+EE;EST;Estônia
+EG;EGY;Egito
+EH;ESH;Western Sahara
+EM;;EUIPO
+EP;;Escritório Europeu de Patentes
+ER;ERI;Eritrea
+ES;ESP;Espanha
+ET;ETH;Etiópia
+FI;FIN;Finlândia
+FJ;FJI;Fiji
+FK;FLK;Falkland Islands (Malvinas)
+FM;FSM;Micronesia, Federated States of
+FO;FRO;Ilhas Faroé
+FR;FRA;França
+GA;GAB;Gabon
+GB;GBR;Reino Unido
+GD;GRD;Grenada
+GE;GEO;Geórgia
+GF;GUF;Guiana Francesa
+GG;GGY;Guernsey
+GH;GHA;Gana
+GI;GIB;Gibraltar
+GL;GRL;Groenlândia
+GM;GMB;Gambia
+GN;GIN;Guinea
+GP;GLP;Guadalupe
+GQ;GNQ;Equatorial Guinea
+GR;GRC;Grécia
+GS;SGS;South Georgia and the South Sandwich Islands
+GT;GTM;Guatemala
+GU;GUM;Guam
+GW;GNB;Guinea-Bissau
+GY;GUY;Guiana
+HK;HKG;Hong Kong
+HM;HMD;Heard Island and McDonald Islands
+HN;HND;Honduras
+HR;HRV;Croácia
+HT;HTI;Haiti
+HU;HUN;Hungria
+IB;;OMPI (Escritório Internacional)
+ID;IDN;Indonésia
+IE;IRL;Irlanda
+IL;ISR;Israel
+IM;IMN;Ilha de Man
+IN;IND;Índia
+IO;IOT;British Indian Ocean Territory
+IQ;IRQ;Iraque
+IR;IRN;Irã
+IS;ISL;Islândia
+IT;ITA;Itália
+JE;JEY;Jersey
+JM;JAM;Jamaica
+JO;JOR;Jordânia
+JP;JPN;Japão
+KE;KEN;Quênia
+KG;KGZ;Kyrgyzstan
+KH;KHM;Camboja
+KI;KIR;Kiribati
+KM;COM;Comoros
+KN;KNA;Saint Kitts and Nevis
+KP;PRK;Coreia do Norte
+KR;KOR;Coreia do Sul
+KW;KWT;Kuwait
+KY;CYM;Ilhas Cayman
+KZ;KAZ;Cazaquistão
+LA;LAO;Laos
+LB;LBN;Líbano
+LC;LCA;Saint Lucia
+LI;LIE;Liechtenstein
+LK;LKA;Sri Lanka
+LR;LBR;Liberia
+LS;LSO;Lesotho
+LT;LTU;Lituânia
+LU;LUX;Luxemburgo
+LV;LVA;Letônia
+LY;LBY;Líbia
+MA;MAR;Marrocos
+MC;MCO;Mônaco
+MD;MDA;Moldávia
+ME;MNE;Montenegro
+MF;MAF;Saint Martin (French part)
+MG;MDG;Madagascar
+MH;MHL;Marshall Islands
+MK;MKD;Macedônia do Norte
+ML;MLI;Mali
+MM;MMR;Mianmar
+MN;MNG;Mongólia
+MO;MAC;Macau
+MP;MNP;Northern Mariana Islands
+MQ;MTQ;Martinica
+MR;MRT;Mauritania
+MS;MSR;Montserrat
+MT;MLT;Malta
+MU;MUS;Maurício
+MV;MDV;Maldives
+MW;MWI;Malawi
+MX;MEX;México
+MY;MYS;Malásia
+MZ;MOZ;Moçambique
+NA;NAM;Namibia
+NC;NCL;Nova Caledônia
+NE;NER;Niger
+NF;NFK;Norfolk Island
+NG;NGA;Nigéria
+NI;NIC;Nicarágua
+NL;NLD;Países Baixos
+NO;NOR;Noruega
+NP;NPL;Nepal
+NR;NRU;Nauru
+NU;NIU;Niue
+NZ;NZL;Nova Zelândia
+OA;;OAPI
+OM;OMN;Omã
+PA;PAN;Panamá
+PE;PER;Peru
+PF;PYF;Polinésia Francesa
+PG;PNG;Papua-Nova Guiné
+PH;PHL;Filipinas
+PK;PAK;Paquistão
+PL;POL;Polônia
+PM;SPM;Saint Pierre and Miquelon
+PN;PCN;Pitcairn
+PR;PRI;Porto Rico
+PS;PSE;Palestine, State of
+PT;PRT;Portugal
+PW;PLW;Palau
+PY;PRY;Paraguai
+QA;QAT;Catar
+RE;REU;Reunião
+RO;ROU;Romênia
+RS;SRB;Sérvia
+RU;RUS;Rússia
+RW;RWA;Rwanda
+SA;SAU;Arábia Saudita
+SB;SLB;Solomon Islands
+SC;SYC;Seicheles
+SD;SDN;Sudão
+SE;SWE;Suécia
+SG;SGP;Singapura
+SH;SHN;Saint Helena, Ascension and Tristan da Cunha
+SI;SVN;Eslovênia
+SJ;SJM;Svalbard
+SK;SVK;Eslováquia
+SL;SLE;Sierra Leone
+SM;SMR;San Marino
+SN;SEN;Senegal
+SO;SOM;Somalia
+SR;SUR;Suriname
+SS;SSD;South Sudan
+ST;STP;Sao Tome and Principe
+SU;;União Soviética (legado)
+SV;SLV;El Salvador
+SX;SXM;Sint Maarten (Dutch part)
+SY;SYR;Síria
+SZ;SWZ;Eswatini
+TC;TCA;Turks and Caicos Islands
+TD;TCD;Chad
+TF;ATF;French Southern Territories
+TG;TGO;Togo
+TH;THA;Tailândia
+TJ;TJK;Tajikistan
+TK;TKL;Tokelau
+TL;TLS;Timor-Leste
+TM;TKM;Turkmenistan
+TN;TUN;Tunísia
+TO;TON;Tonga
+TR;TUR;Turquia
+TT;TTO;Trinidad e Tobago
+TV;TUV;Tuvalu
+TW;TWN;Taiwan
+TZ;TZA;Tanzânia
+UA;UKR;Ucrânia
+UG;UGA;Uganda
+UM;UMI;United States Minor Outlying Islands
+US;USA;Estados Unidos
+UY;URY;Uruguai
+UZ;UZB;Uzbequistão
+VA;VAT;Vaticano
+VC;VCT;Saint Vincent and the Grenadines
+VE;VEN;Venezuela
+VG;VGB;Ilhas Virgens Britânicas
+VI;VIR;Ilhas Virgens Americanas
+VN;VNM;Vietnã
+VU;VUT;Vanuatu
+WF;WLF;Wallis and Futuna
+WO;;OMPI
+WS;WSM;Samoa
+XX;;Não informado
+YE;YEM;Iêmen
+YT;MYT;Mayotte
+YU;;Iugoslávia (legado)
+ZA;ZAF;África do Sul
+ZM;ZMB;Zâmbia
+ZW;ZWE;Zimbábue
