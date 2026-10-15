@@ -3,12 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BADEPI Dashboard — Patentes no Brasil</title>
-  <meta name="description" content="Painel interativo com os microdados de patentes do INPI (BADEPI v12): depósitos, concessões, tempo de decisão, campos tecnológicos, origem, gênero e o impacto do sistema de patentes no Brasil.">
-  <meta property="og:title" content="BADEPI Dashboard — Patentes no Brasil">
-  <meta property="og:description" content="702 mil pedidos de patente, 3,9 milhões de despachos e 2 milhões de inventores em uma leitura visual do sistema de patentes brasileiro.">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <title>BADEPI Dashboard — Propriedade industrial no Brasil</title>
+  <meta name="description" content="Painéis interativos com os microdados do INPI (BADEPI v12): patentes, marcas, desenhos industriais e indicações geográficas, com comparativos entre os ativos e guia de uso dos dados.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M8 22V12m8 10V8m8 14v-6' stroke='white' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
@@ -17,286 +14,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
-<header class="topbar">
-  <div class="container">
-    <a class="brand" href="./"><span class="logo">PI</span>BADEPI<small>v12 · patentes</small></a>
-    <nav class="primary" aria-label="Seções">
-      <a href="#panorama">Panorama</a><a href="#impacto">Impacto</a><a href="#jornada">Jornada</a><a href="#quem">Quem</a><a href="#onde">Onde</a><a href="#tecnologias">Tecnologias</a><a href="#genero">Gênero</a><a href="#metodo">Método</a><a href="como-usar.html">Como usar</a>
-    </nav>
-    <button class="icon-btn" id="theme-toggle" aria-label="Alternar tema">🌙 <span>Escuro</span></button>
-  </div>
-</header>
-
+<header class="topbar" id="topbar"></header>
 <section class="hero">
   <canvas id="hero-canvas" aria-hidden="true"></canvas>
   <div class="container">
     <span class="eyebrow">● BADEPI v12 · INPI · dados até dezembro de 2025</span>
-    <h1>Patentes no Brasil, <span class="grad">em dados abertos</span></h1>
-    <p class="lead">O BADEPI reúne os microdados de todos os pedidos de patente depositados no INPI desde 2000. Este painel transforma essa base pública em uma leitura visual do sistema brasileiro de patentes — quem inventa, o que protege, quanto tempo leva e qual o impacto.</p>
-    <div class="hero-stats" id="hero-stats">
-      <div class="hero-stat"><div class="v" data-kpi="pedidos_total" data-count="0">–</div><div class="l">pedidos de patente (2000–2025)</div></div>
-      <div class="hero-stat"><div class="v" data-kpi="concessoes_total" data-count="0">–</div><div class="l">patentes concedidas</div></div>
-      <div class="hero-stat"><div class="v" data-kpi="n_inventores_linhas" data-count="0">–</div><div class="l">menções a inventores</div></div>
-      <div class="hero-stat"><div class="v" data-kpi="n_paises" data-count="0">–</div><div class="l">países de origem</div></div>
+    <h1>Propriedade industrial no Brasil, <span class="grad">em dados abertos</span></h1>
+    <p class="lead">O BADEPI reúne os microdados de tudo o que foi pedido ao INPI desde 2000. Este site transforma essa base pública em quatro painéis — patentes, marcas, desenhos industriais e indicações geográficas — com a mesma leitura: quanto se pede, quem pede, de onde, quanto tempo leva e qual o impacto.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="v" id="h-pedidos" data-count="0">–</div><div class="l">pedidos de proteção (2000–2025)</div></div>
+      <div class="hero-stat"><div class="v" id="h-concedidos" data-count="0">–</div><div class="l">direitos concedidos ou registrados</div></div>
+      <div class="hero-stat"><div class="v" id="h-vigentes" data-count="0">–</div><div class="l">direitos vigentes hoje</div></div>
+      <div class="hero-stat"><div class="v" id="h-ultimo" data-count="0">–</div><div class="l">pedidos em 2025</div></div>
     </div>
-    <div class="cta">
-      <a class="btn primary" href="#impacto">Ver o impacto ↓</a>
-      <a class="btn" href="como-usar.html">Como usar os dados</a>
-      <a class="btn" id="gh-link" href="https://github.com/Jaimenms/badepi-dashboard" target="_blank" rel="noopener">Repositório</a>
-    </div>
+    <div class="subnav" id="subnav"></div>
   </div>
 </section>
 
-<div class="container"><div class="kpi-row" id="kpis" aria-label="Indicadores principais"></div></div>
+<section class="block" id="ativos" style="padding-top:28px"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Índice</span><h2>Escolha um ativo</h2><p>Cada painel tem KPIs, séries anuais, situação por safra, ciclo de vida, tempo de decisão, geografia, depositantes e o grafo de despachos.</p></div>
+  <div class="assets" id="assets"></div>
+</div></section>
 
-<section class="block" id="panorama">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Panorama</span><h2>26 anos de depósitos</h2><p>Quantos pedidos chegam ao INPI por ano, de onde vêm e por qual via. Os pedidos são contados pelo ano de protocolo no INPI (entrada direta ou entrada na fase nacional do PCT).</p></div>
-    <div class="grid">
-      <article class="card col-8 reveal" data-chart="dep-serie">
-        <header><div class="titles"><h3>Pedidos de patente por ano</h3><p class="sub">Protocolados no INPI, por ano de entrada</p></div>
-          <div class="actions"><div class="seg" data-key="view"><button class="active" data-value="origem">Origem</button><button data-value="natureza">Natureza</button><button data-value="via">Via</button></div><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">Origem = país do primeiro depositante. Pedidos via PCT entram na fase nacional até 30 meses após a prioridade, por isso os dois últimos anos ainda crescerão nas próximas versões da base.</footer>
-      </article>
-      <article class="card col-4 reveal" data-chart="dep-categoria">
-        <header><div class="titles"><h3>Quem são os depositantes residentes</h3><p class="sub">Pedidos de residentes por categoria do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">Categoria inferida do nome e do tipo de pessoa (heurística). Pedidos ainda em sigilo chegam sem nome: só se sabe se são pessoa física ou jurídica.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="dep-inventores">
-        <header><div class="titles"><h3>Inventores e depositantes por pedido</h3><p class="sub">Média anual</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart short"></div><div class="table-view hidden"></div>
-        <footer class="note">Equipes maiores de inventores sugerem pesquisa mais colaborativa e institucional.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="dep-prioridade">
-        <header><div class="titles"><h3>Pedidos com prioridade unionista</h3><p class="sub">Parcela dos pedidos que reivindica depósito anterior no exterior</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart short"></div><div class="table-view hidden"></div>
-        <footer class="note">A prioridade (Convenção de Paris) indica que a invenção foi protegida primeiro em outro país e depois estendida ao Brasil. Na v12 a tabela de prioridades só cobre pedidos com a numeração nova (BR 10/11/20…, a partir de 2012).</footer>
-      </article>
-    </div>
+<section class="block" id="comparativo"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Comparativo</span><h2>Os quatro ativos lado a lado</h2><p>Volumes muito diferentes (5 milhões de marcas contra 254 indicações geográficas) pedem comparações em índice e em parcelas, não em valores absolutos.</p></div>
+  <div class="grid">
+    <article class="card col-6 reveal" data-chart="cmp-indice"><header><div class="titles"><h3>Crescimento dos pedidos</h3><p class="sub">Índice: pedidos do ano ÷ pedidos de 2000 × 100</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Marcas quadruplicaram; patentes cresceram 40%; desenhos quase triplicaram; IGs saíram de 2 para 20 pedidos por ano.</footer></article>
+    <article class="card col-6 reveal" data-chart="cmp-residentes"><header><div class="titles"><h3>Parcela de residentes</h3><p class="sub">Pedidos cujo primeiro depositante é domiciliado no Brasil</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Patentes são o único ativo dominado por não residentes.</footer></article>
+    <article class="card col-6 reveal" data-chart="cmp-tempo"><header><div class="titles"><h3>Tempo até a concessão ou o registro</h3><p class="sub">Mediana em anos, por ano em que a decisão foi publicada</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Patentes exigem exame de mérito; desenhos são registrados sem exame, por isso levam meses.</footer></article>
+    <article class="card col-6 reveal" data-chart="cmp-situacao"><header><div class="titles"><h3>Destino dos pedidos</h3><p class="sub">Situação atual de todos os pedidos de 2000 a 2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Patentes concentram arquivamentos; marcas e desenhos têm as maiores taxas de concessão.</footer></article>
+    <article class="card col-12 reveal" data-chart="cmp-funil"><header><div class="titles"><h3>Conversão por etapa</h3><p class="sub">Parcela dos pedidos de 2000–2025 que chegou a cada etapa</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <div class="col-12"><h3 style="margin:8px 0 12px;font-size:18px">Pedidos por ano, em valores absolutos</h3><div class="grid" id="cmp-mini"></div></div>
   </div>
-</section>
+</div></section>
 
-<section class="block" id="impacto">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Impacto</span><h2>O que mudou no sistema de patentes</h2><p>Patentes só geram valor quando são decididas em prazo razoável, protegem tecnologias relevantes e alcançam inventores em todo o país. Estes indicadores medem exatamente isso.</p></div>
-    <div class="story">
-      <article class="card col-3 hero-num reveal"><div class="big"><span id="big-tempo" data-count="0" data-decimals="1">–</span><small>anos</small></div><div class="big-label">tempo mediano entre o protocolo e a concessão, em <span id="big-tempo-ano"></span></div><div class="big-sub" id="big-tempo-sub"></div></article>
-      <article class="card col-3 hero-num reveal"><div class="big"><span id="big-backlog" data-count="0">–</span></div><div class="big-label">pedidos sem decisão de mérito ao fim de <span id="big-backlog-ano"></span></div><div class="big-sub" id="big-backlog-sub"></div></article>
-      <article class="card col-3 hero-num reveal"><div class="big"><span id="big-vigentes" data-count="0">–</span></div><div class="big-label">patentes vigentes hoje, protegendo tecnologias no Brasil</div><div class="big-sub" id="big-vigentes-sub"></div></article>
-      <article class="card col-3 hero-num reveal"><div class="big"><span id="big-res" data-count="0" data-decimals="1" data-suffix="%">–</span></div><div class="big-label">dos pedidos de <span id="big-res-ano"></span> vieram de residentes no Brasil</div><div class="big-sub" id="big-res-sub"></div></article>
-
-      <article class="card col-6 reveal" data-chart="imp-tempo">
-        <header><div class="titles"><h3>Tempo até a concessão</h3><p class="sub">Anos entre o protocolo e a carta-patente, por ano de concessão (mediana e faixa entre os quartis)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart"></div><div class="table-view hidden"></div>
-        <footer class="note">Só pedidos depositados a partir de 2000 estão na base, por isso os primeiros anos da série subestimam o tempo (apenas processos rápidos podiam ter sido concedidos). A queda a partir de 2017 reflete o Plano de Combate ao Backlog do INPI.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="imp-backlog">
-        <header><div class="titles"><h3>Estoque de pedidos sem decisão</h3><p class="sub">Pedidos já protocolados e ainda sem deferimento, indeferimento, arquivamento ou concessão ao fim de cada ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart"></div><div class="table-view hidden"></div>
-        <footer class="note">Inclui pedidos em fase normal de tramitação (publicação, pedido de exame). A tendência é o que importa: o pico de 2016 e a redução posterior.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="imp-concessoes">
-        <header><div class="titles"><h3>Patentes concedidas por ano</h3><p class="sub">Primeira concessão de cada pedido, por ano de publicação na RPI</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart"></div><div class="table-view hidden"></div>
-        <footer class="note">Concessões anteriores a ~2010 aparecem subestimadas porque a base só contém pedidos depositados desde 2000.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="imp-vigentes-setor">
-        <header><div class="titles"><h3>Patentes vigentes por setor tecnológico</h3><p class="sub">Concedidas, não extintas e dentro do prazo legal (20 anos PI / 15 anos MU)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart"></div><div class="table-view hidden"></div>
-        <footer class="note">Setores da classificação OMPI de 35 campos tecnológicos, pela classificação IPC principal do pedido.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="imp-cresc">
-        <header><div class="titles"><h3>Campos tecnológicos em ascensão e em queda</h3><p class="sub">Variação da média anual de pedidos: 2021–2025 vs. 2011–2015</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">Apenas campos com média de pelo menos 100 pedidos/ano no período-base. Mostra os 7 maiores crescimentos e as 7 maiores quedas.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="imp-academia">
-        <header><div class="titles"><h3>Universidades e institutos entre os residentes</h3><p class="sub">Parcela dos pedidos de residentes cujo primeiro depositante é acadêmico</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note" id="imp-academia-note">Calculado sobre pedidos já publicados (com nome do depositante conhecido). O último ano é parcial porque a maior parte dos pedidos ainda está em sigilo.</footer>
-      </article>
-      <article class="card col-4 keep reveal" data-chart="imp-regional-sp">
-        <header><div class="titles"><h3>Concentração em São Paulo</h3><p class="sub">Parcela de SP nos pedidos de residentes</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart short"></div><div class="table-view hidden"></div>
-        <footer class="note">Queda contínua: a atividade inventiva se espalha pelo país.</footer>
-      </article>
-      <article class="card col-4 keep reveal" data-chart="imp-regional-ufs">
-        <header><div class="titles"><h3>Estados com 50+ pedidos no ano</h3><p class="sub">Número de UFs acima do limiar</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart short"></div><div class="table-view hidden"></div>
-        <footer class="note">Mede a difusão territorial do uso do sistema de patentes.</footer>
-      </article>
-      <article class="card col-4 keep reveal" data-chart="imp-prioritario">
-        <header><div class="titles"><h3>Pedidos com trâmite prioritário</h3><p class="sub">Pedidos distintos com despacho de exame prioritário no ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart short"></div><div class="table-view hidden"></div>
-        <footer class="note">Inclui PPH, patentes verdes, saúde, MEI/ME/EPP, ICTs, idosos e outras modalidades (códigos 27.x, 28.x e 15.24).</footer>
-      </article>
-    </div>
+<section class="block" id="sobre"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Sobre</span><h2>Como este site é feito</h2></div>
+  <div class="prose reveal">
+    <p>Um pipeline em Python baixa os oito zips do BADEPI (camada <strong>bronze</strong>), transforma os CSVs em parquet tipado e relacionado (<strong>silver</strong>) e gera as agregações em JSON que estas páginas leem (<strong>gold</strong>). Tudo é reproduzível com quatro comandos e está documentado em <a href="como-usar.html">Como usar</a>, incluindo o modelo de dados de cada ativo e as regras de derivação da situação dos pedidos.</p>
+    <p>Contratos de tecnologia, programas de computador e topografias de circuito integrado já estão na bronze e são os próximos painéis.</p>
   </div>
-</section>
-
-<section class="block" id="jornada">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Jornada do pedido</span><h2>Do depósito ao destino final</h2><p>Cada pedido deixa uma trilha de despachos na Revista da Propriedade Industrial. Reconstruímos essa trilha para saber onde cada pedido está hoje.</p></div>
-    <div class="grid">
-      <article class="card col-8 reveal" data-chart="sit-coorte">
-        <header><div class="titles"><h3>Situação atual por ano de depósito</h3><p class="sub">Como terminaram (ou estão) os pedidos de cada safra</p></div>
-          <div class="actions"><div class="seg" data-key="view"><button class="active" data-value="todos">Todos</button><button data-value="res">Residentes</button><button data-value="nres">Não residentes</button></div><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">Situação derivada da cronologia de despachos (ver <a href="como-usar.html#situacao">método</a>). "Arquivada" inclui arquivamentos por falta de pedido de exame ou de pagamento de anuidade.</footer>
-      </article>
-      <article class="card col-4 reveal" data-chart="funil">
-        <header><div class="titles"><h3>Funil de uma safra</h3><p class="sub">Etapas alcançadas pelos pedidos de um ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="filter-row"><label class="range" for="funil-ano">Ano de depósito <input type="range" id="funil-ano" data-key="ano" min="2000" max="2025" value="2015"> <output for="funil-ano">2015</output></label></div>
-        <div class="chart"></div><div class="table-view hidden"></div>
-        <footer class="note">Safras recentes ainda estão em tramitação: um funil curto não significa baixa qualidade.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="eventos">
-        <header><div class="titles"><h3>Atividade do INPI por tipo de despacho</h3><p class="sub">Pedidos distintos com cada evento, por ano de publicação na RPI</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">O salto de exigências e pareceres a partir de 2017 é a marca do esforço de redução do backlog.</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="tempo-hist">
-        <header><div class="titles"><h3>Distribuição do tempo até a concessão</h3><p class="sub" id="tempo-hist-sub">Patentes concedidas nos últimos cinco anos</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note" id="tempo-via-note"></footer>
-      </article>
-      <article class="card col-4 reveal" data-chart="tempo-setor">
-        <header><div class="titles"><h3>Tempo mediano por setor e por via</h3><p class="sub">Concessões recentes</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-8 reveal" data-chart="tempo-campo">
-        <header><div class="titles"><h3>Tempo mediano por campo tecnológico</h3><p class="sub">Concessões recentes, do mais rápido ao mais lento</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart" style="height:560px"></div><div class="table-view hidden"></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="quem">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Quem</span><h2>Quem deposita patentes no Brasil</h2><p>Empresas multinacionais lideram o volume total; entre os residentes, universidades públicas e a Petrobras disputam o topo.</p></div>
-    <div class="grid">
-      <article class="card col-8 reveal" data-chart="race">
-        <header><div class="titles"><h3>Corrida dos depositantes residentes</h3><p class="sub">Pedidos acumulados desde 2000 — os 12 maiores a cada ano</p></div>
-          <div class="actions"><button class="icon-btn btn-play">▶ Reproduzir</button><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chips"><span style="--c:var(--s1)">Universidade</span><span style="--c:var(--s2)">Empresa</span><span style="--c:var(--s3)">Instituto de pesquisa</span><span style="--c:var(--s4)">Pessoa física</span><span style="--c:var(--s5)">Governo</span></div>
-        <div class="chart xtall"></div><div class="table-view hidden"></div>
-        <footer class="note">Nomes agrupados após normalização (acentos, pontuação, caixa); variações de grafia podem dividir uma mesma instituição.</footer>
-      </article>
-      <article class="card col-4 reveal" data-chart="top-dep">
-        <header><div class="titles"><h3>Maiores depositantes</h3><p class="sub">Pedidos 2000–2025, pelo primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="filter-row"><div class="seg" data-key="view"><button class="active" data-value="top_geral">Geral</button><button data-value="top_residentes">Residentes</button><button data-value="top_universidades">Universidades</button><button data-value="top_empresas_residentes">Empresas BR</button><button data-value="top_institutos">Institutos</button></div></div>
-        <div class="chart xtall"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-6 reveal" data-chart="paises-bar">
-        <header><div class="titles"><h3>Países de origem</h3><p class="sub">Pedidos pelo país do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-6 reveal" data-chart="paises-linhas">
-        <header><div class="titles"><h3>Principais origens ao longo do tempo</h3><p class="sub">Pedidos por ano, seis maiores países</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">A China passa de origem marginal a uma das maiores, sobretudo em comunicação digital.</footer>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="onde">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Onde</span><h2>A geografia da invenção</h2><p>Para os pedidos de residentes, a UF e o município do primeiro depositante mostram onde a atividade inventiva acontece.</p></div>
-    <div class="grid">
-      <article class="card col-6 reveal" data-chart="mapa">
-        <header><div class="titles"><h3>Pedidos de residentes por UF</h3><p class="sub">Primeiro depositante domiciliado no Brasil</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="filter-row"><div class="seg" data-key="view"><button class="active" data-value="total">Pedidos</button><button data-value="concedidos">Concedidos</button><button data-value="vigentes">Vigentes</button><button data-value="ultimo_ano">Último ano</button></div></div>
-        <div class="chart map"></div><div class="table-view hidden"></div>
-        <footer class="note">Malha: IBGE (API de malhas geográficas, qualidade mínima).</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="regioes">
-        <header><div class="titles"><h3>Pedidos de residentes por região</h3><p class="sub">Por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart map"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-6 reveal" data-chart="municipios">
-        <header><div class="titles"><h3>Municípios mais inventivos</h3><p class="sub">Pedidos de residentes pelo município do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart xtall"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-6 reveal" data-chart="uf-ranking">
-        <header><div class="titles"><h3>Ranking das UFs</h3><p class="sub">Pedidos de residentes 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart xtall"></div><div class="table-view hidden"></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="tecnologias">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Tecnologias</span><h2>O que se protege</h2><p>A classificação IPC de cada pedido é mapeada para os 35 campos tecnológicos da OMPI, agrupados em cinco setores.</p></div>
-    <div class="grid">
-      <article class="card col-12 reveal" data-chart="treemap">
-        <header><div class="titles"><h3>Setores e campos tecnológicos</h3><p class="sub">Pedidos 2000–2025 pela classificação IPC principal — passe o mouse sobre um campo para detalhes</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart xtall"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-6 reveal" data-chart="setores-area">
-        <header><div class="titles"><h3>Setores ao longo do tempo</h3><p class="sub">Pedidos por ano e setor</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-6 reveal" data-chart="campo-res">
-        <header><div class="titles"><h3>Onde os residentes são mais presentes</h3><p class="sub">Parcela de pedidos de residentes em cada campo tecnológico</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">Mostra os 10 campos com maior e os 5 com menor presença de residentes.</footer>
-      </article>
-      <div class="col-12"><h3 style="margin:8px 0 12px;font-size:18px">Os oito maiores campos, ano a ano</h3><div class="grid" id="campos-mult"></div></div>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="genero">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Gênero</span><h2>Mulheres na invenção</h2><p>A base "PI e Gênero" do INPI atribui um sexo provável a inventores e depositantes residentes a partir do primeiro nome (Censo 2022).</p></div>
-    <div class="grid">
-      <article class="card col-6 reveal" data-chart="gen-share">
-        <header><div class="titles"><h3>Participação feminina por ano</h3><p class="sub">Entre inventores e entre depositantes pessoa física (residentes)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-        <footer class="note">Denominador: menções classificadas como F ou M (exclui indeterminados).</footer>
-      </article>
-      <article class="card col-6 reveal" data-chart="gen-setor">
-        <header><div class="titles"><h3>Participação feminina por setor</h3><p class="sub">Inventoras residentes, 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart tall"></div><div class="table-view hidden"></div>
-      </article>
-      <article class="card col-12 reveal" data-chart="gen-campo">
-        <header><div class="titles"><h3>Participação feminina por campo tecnológico</h3><p class="sub">Inventoras residentes, campos ordenados</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
-        <div class="chart" style="height:560px"></div><div class="table-view hidden"></div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<section class="block" id="metodo">
-  <div class="container">
-    <div class="section-head reveal"><span class="eyebrow">Método</span><h2>Como ler estes números</h2></div>
-    <div class="prose reveal">
-      <ul>
-        <li><strong>Fonte.</strong> BADEPI v12 (INPI/CGEI), microdados de patentes publicados em 13/10/2026 com dados até 31/12/2025. Pedidos depositados de 2000 a 2025.</li>
-        <li><strong>Contagem.</strong> Um pedido é contado no ano do seu protocolo no INPI (campo DT_ENTRADA_INPI). Para pedidos via PCT, é a data de entrada na fase nacional.</li>
-        <li><strong>Origem e residentes.</strong> O país e a UF do primeiro depositante determinam a origem do pedido, conforme o manual do BADEPI.</li>
-        <li><strong>Situação.</strong> Derivada da última ocorrência de cada tipo de despacho (concessão, extinção, indeferimento, arquivamento, restauração, recurso provido…). É uma aproximação estatística, não o status oficial do processo.</li>
-        <li><strong>Tempo até a concessão.</strong> Diferença entre a data de protocolo e a publicação da concessão (código 16.1), em anos.</li>
-        <li><strong>Campos tecnológicos.</strong> Tabela OMPI de 35 campos (CAMPO_TEC), pela classificação IPC de ordem 1 do pedido; 6% dos pedidos não têm classificação.</li>
-        <li><strong>Categorias de depositante.</strong> Heurística sobre o nome (universidade, instituto de pesquisa, governo, empresa) combinada com o tipo de pessoa informado para residentes. Pedidos em sigilo não têm nome e ficam como "não identificado".</li>
-        <li><strong>Limites.</strong> A base é uma foto anual dos sistemas do INPI: campos podem mudar entre versões; as datas de prioridade estão ausentes nesta versão; o último ano é sempre parcial para pedidos PCT.</li>
-      </ul>
-      <p>O pipeline completo (download, bronze, silver em parquet e gold em JSON) está documentado em <a href="como-usar.html">Como usar</a>.</p>
-    </div>
-  </div>
-</section>
-
-<footer class="site">
-  <div class="container">
-    <div>Dados: <a href="https://www.gov.br/inpi/pt-br/inpi-data/dados-e-series-temporais/badepi" target="_blank" rel="noopener">BADEPI — INPI</a> · Malha: IBGE · Código: MIT</div>
-    <div id="gerado"></div>
-  </div>
-</footer>
-<script type="module" src="assets/js/app.js"></script>
+</div></section>
+<footer class="site" id="site-footer"></footer>
+<script type="module" src="assets/js/home.js"></script>
 </body>
 </html>

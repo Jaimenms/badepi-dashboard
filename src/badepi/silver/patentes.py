@@ -25,12 +25,13 @@ import re
 from datetime import datetime, timezone
 from pathlib import Path
 
-import numpy as np
+import numpy as np  # noqa: F401
 import pandas as pd
 
 from ..config import BADEPI_VERSION, SOURCES
 from ..ioutil import ParquetSink, iter_badepi_csv, read_badepi_csv, read_json, write_parquet
-from .common import classify_applicant, load_reference, normalize_name, parse_date, parse_datetime, to_int
+from .common import (derive_situacao, dim_despacho_from_parts, load_reference, parse_date, parse_datetime, pessoa_base,
+                     primeiro_depositante, to_int, transform_depositante, transform_genero)
 
 log = logging.getLogger(__name__)
 SRC = SOURCES["patentes"]
@@ -126,32 +127,8 @@ def transform_deposito(df: pd.DataFrame) -> pd.DataFrame:
     })
 
 
-def _pessoa_base(df: pd.DataFrame) -> pd.DataFrame:
-    nome = df["NM_COMPLET_PFPJ"]
-    uf = df["CD_UF_PFPJ"].mask(df["CD_UF_PFPJ"] == "XX")
-    ibge = df["CD_IBGE_CIDADE"].mask(df["CD_IBGE_CIDADE"] == "0000000")
-    return pd.DataFrame({
-        "no_pedido": df["NO_PEDIDO"],
-        "no_ordem": to_int(df["NO_ORDEM"], "Int16"),
-        "nome": nome,
-        "nome_norm": normalize_name(nome),
-        "documento": df["NO_CNPJ_CPF"],
-        "pais": df["CD_PAIS_PFPJ"],
-        "uf": uf,
-        "cidade": df["NM_CIDADE_PFPJ"],
-        "codigo_ibge_municipio": ibge,
-    })
-
-
-def transform_depositante(df: pd.DataFrame) -> pd.DataFrame:
-    out = _pessoa_base(df)
-    out.insert(2, "tipo_pessoa", df["CD_TIPO_PFPJ"])
-    out["categoria"] = classify_applicant(out["nome_norm"], out["tipo_pessoa"])
-    return out
-
-
 def transform_inventor(df: pd.DataFrame) -> pd.DataFrame:
-    out = _pessoa_base(df)
+    out = pessoa_base(df)
     out.insert(2, "anonimo", (df["CD_ANONIMA"] == "S").fillna(False).astype("boolean"))
     return out
 
@@ -213,101 +190,22 @@ def transform_prioridade(df: pd.DataFrame) -> pd.DataFrame:
     })
 
 
-def transform_genero(df: pd.DataFrame) -> pd.DataFrame:
-    out = pd.DataFrame({"no_pedido": df["NO_PEDIDO"], "sexo": df["SEXO_REC"]})
-    out["seq"] = out.groupby("no_pedido").cumcount().add(1).astype("Int16")
-    return out[["no_pedido", "seq", "sexo"]]
-
-
 # ----------------------------------------------------------------------------- situação do pedido
 SITUACOES = ["Concedida", "Deferida", "Em andamento", "Indeferida", "Arquivada", "Retirada", "Extinta", "Anulada"]
 
 
-def build_situacao(ev: pd.DataFrame, deposito: pd.DataFrame, referencia: pd.Timestamp) -> pd.DataFrame:
-    """Deriva a situação atual de cada pedido a partir da cronologia de eventos.
-
-    ev: colunas no_pedido, dt_publicacao, evento (todos os despachos).
-    Regras (aplicadas nesta ordem, usando a última data de cada tipo de evento):
-      1. concessão → 'Anulada' se houve anulação posterior; 'Extinta' se a última extinção é posterior à
-         última restauração; senão 'Concedida'.
-      2. desistência/retirada posterior a qualquer decisão → 'Retirada'.
-      3. indeferimento não revertido por recurso provido posterior → 'Indeferida'.
-      4. arquivamento não revertido por desarquivamento/restauração posterior → 'Arquivada'.
-      5. deferimento sem concessão → 'Deferida'.
-      6. caso contrário → 'Em andamento'.
-    """
-    rel = ["concessao", "patente_anulada", "extincao", "restauracao", "indeferimento", "recurso_provido",
-           "arquivamento", "desarquivamento", "desistencia_retirada", "deferimento", "publicacao", "exigencia",
-           "parecer", "pct_fase_nacional"]
-    sub = ev[ev["evento"].isin(rel)]
-    last = sub.groupby(["no_pedido", "evento"], observed=True)["dt_publicacao"].max().unstack("evento")
-    first = sub.groupby(["no_pedido", "evento"], observed=True)["dt_publicacao"].min().unstack("evento")
-    for col in rel:
-        if col not in last.columns:
-            last[col] = pd.NaT
-            first[col] = pd.NaT
-    L = last
-
-    def gt(a: str, b: str) -> pd.Series:  # a existe e (b não existe ou a >= b)
-        return L[a].notna() & (L[b].isna() | (L[a] >= L[b]))
-
-    concedida = L["concessao"].notna()
-    anulada = concedida & gt("patente_anulada", "concessao")
-    extinta = concedida & ~anulada & gt("extincao", "concessao") & gt("extincao", "restauracao")
-    decisao_cols = ["concessao", "indeferimento", "arquivamento", "deferimento"]
-    ultima_decisao = L[decisao_cols].max(axis=1)
-    retirada = ~concedida & L["desistencia_retirada"].notna() & (ultima_decisao.isna() | (L["desistencia_retirada"] >= ultima_decisao))
-    indeferida = ~concedida & ~retirada & gt("indeferimento", "recurso_provido") & gt("indeferimento", "deferimento")
-    arquivada = (~concedida & ~retirada & ~indeferida & gt("arquivamento", "desarquivamento")
-                 & gt("arquivamento", "restauracao") & gt("arquivamento", "deferimento"))
-    deferida = ~concedida & ~retirada & ~indeferida & ~arquivada & L["deferimento"].notna()
-    situacao = np.select(
-        [anulada, extinta, concedida, retirada, indeferida, arquivada, deferida],
-        ["Anulada", "Extinta", "Concedida", "Retirada", "Indeferida", "Arquivada", "Deferida"],
-        default="Em andamento",
-    )
-    out = pd.DataFrame({
-        "no_pedido": L.index.astype("string"),
-        "situacao": pd.Series(situacao, index=L.index, dtype="string").values,
-        "dt_publicacao_pedido": first["publicacao"].values,
-        "dt_pct_fase_nacional": first["pct_fase_nacional"].values,
-        "dt_primeira_exigencia": first["exigencia"].values,
-        "dt_primeiro_parecer": first["parecer"].values,
-        "dt_deferimento": first["deferimento"].values,
-        "dt_indeferimento": first["indeferimento"].values,
-        "dt_concessao": first["concessao"].values,
-        "dt_arquivamento": L["arquivamento"].values,
-        "dt_extincao": L["extincao"].values,
-    })
-    counts = ev.groupby("no_pedido", observed=True).agg(
-        n_despachos=("evento", "size"), dt_primeiro_despacho=("dt_publicacao", "min"), dt_ultimo_despacho=("dt_publicacao", "max")
-    )
-    n_exig = ev[ev["evento"] == "exigencia"].groupby("no_pedido", observed=True).size().rename("n_exigencias")
-    out = out.merge(counts, left_on="no_pedido", right_index=True, how="left")
-    out = out.merge(n_exig, left_on="no_pedido", right_index=True, how="left")
-    out["n_exigencias"] = out["n_exigencias"].fillna(0).astype("Int16")
-    out["n_despachos"] = out["n_despachos"].astype("Int32")
-
-    # pedidos sem nenhum despacho ainda assim recebem uma linha
-    out = deposito[["no_pedido", "natureza", "dt_deposito", "dt_entrada_inpi"]].merge(out, on="no_pedido", how="left")
-    out["situacao"] = out["situacao"].fillna("Em andamento").astype("string")
-    out["n_despachos"] = out["n_despachos"].fillna(0).astype("Int32")
-    out["n_exigencias"] = out["n_exigencias"].fillna(0).astype("Int16")
-
-    # primeira decisão de mérito/encerramento (para medir pendência) e prazo de vigência legal
-    decisao = out[["dt_concessao", "dt_indeferimento", "dt_arquivamento", "dt_extincao"]].min(axis=1)
-    out["dt_primeira_decisao"] = decisao.where(out["situacao"] != "Em andamento").astype("datetime64[ms]")
-    # publicação efetiva: publicação nacional (3.x) ou publicação/admissão da fase nacional PCT (1.1/1.3)
-    out["dt_publicado"] = out[["dt_publicacao_pedido", "dt_pct_fase_nacional"]].min(axis=1).astype("datetime64[ms]")
+def _fim_vigencia(out: pd.DataFrame) -> pd.Series:
+    """PI e CA: 20 anos do depósito; MU: 15 anos (Art. 40 da LPI)."""
     mu = (out["natureza"] == "MU").fillna(False).to_numpy()
-    fim = out["dt_deposito"] + pd.DateOffset(years=20)           # PI e CA: 20 anos do depósito
-    fim[mu] = out.loc[mu, "dt_deposito"] + pd.DateOffset(years=15)  # MU: 15 anos
-    out["dt_fim_vigencia"] = fim.astype("datetime64[ms]")
-    out["prazo_expirado"] = (out["dt_fim_vigencia"] <= referencia).astype("boolean")
-    out["anos_ate_concessao"] = ((out["dt_concessao"] - out["dt_entrada_inpi"]).dt.days / 365.25).round(2).astype("Float32")
-    out["anos_ate_decisao"] = ((out["dt_primeira_decisao"] - out["dt_entrada_inpi"]).dt.days / 365.25).round(2).astype("Float32")
-    out = out.drop(columns=["natureza", "dt_deposito", "dt_entrada_inpi"])
-    return out
+    fim = out["dt_deposito"] + pd.DateOffset(years=20)
+    fim[mu] = out.loc[mu, "dt_deposito"] + pd.DateOffset(years=15)
+    return fim
+
+
+def build_situacao(ev: pd.DataFrame, deposito: pd.DataFrame, referencia: pd.Timestamp) -> pd.DataFrame:
+    """Situação atual de cada pedido de patente (regras em common.derive_situacao)."""
+    dep = deposito[["no_pedido", "natureza", "dt_deposito", "dt_entrada_inpi"]]
+    return derive_situacao(ev, dep, referencia, fim_vigencia=_fim_vigencia, anulacao_evento="patente_anulada")
 
 
 # ----------------------------------------------------------------------------- build
@@ -349,11 +247,7 @@ def build(force: bool = False) -> Path:
     dpt = transform_depositante(read_badepi_csv(bronze / CSV.format("depositante")))
     p = out / "ptn_depositante.parquet"
     register("ptn_depositante", write_parquet(dpt, p), dpt, p, key=["no_pedido", "no_ordem"])
-    primeiro = (dpt.sort_values(["no_pedido", "no_ordem"]).drop_duplicates("no_pedido")
-                [["no_pedido", "pais", "uf", "tipo_pessoa", "categoria", "nome_norm", "codigo_ibge_municipio"]]
-                .rename(columns={"pais": "pais_origem", "uf": "uf_origem", "tipo_pessoa": "tipo_pessoa_origem",
-                                 "categoria": "categoria_origem", "nome_norm": "depositante_principal",
-                                 "codigo_ibge_municipio": "municipio_origem_ibge"}))
+    primeiro = primeiro_depositante(dpt)
     n_dpt = dpt.groupby("no_pedido").size().rename("n_depositantes").astype("Int16")
     del dpt
 
@@ -456,13 +350,7 @@ def build(force: bool = False) -> Path:
     del ev
 
     # 9) dimensões ------------------------------------------------------------------
-    agg = pd.concat(dim_rows).groupby(["cd_despacho", "ds_despacho", "evento"], observed=True)["n"].sum().reset_index()
-    total = agg.groupby("cd_despacho")["n"].sum().rename("n")
-    dim_desp = (agg.sort_values("n", ascending=False).drop_duplicates("cd_despacho")
-                .drop(columns="n").merge(total, left_on="cd_despacho", right_index=True)
-                .rename(columns={"ds_despacho": "descricao"}))
-    dim_desp["n"] = dim_desp["n"].astype("Int32")
-    dim_desp = dim_desp[["cd_despacho", "descricao", "evento", "n"]].sort_values("cd_despacho").reset_index(drop=True)
+    dim_desp = dim_despacho_from_parts(dim_rows)
     for name, df in [("dim_campo_tec", dim_campo), ("dim_despacho", dim_desp),
                      ("dim_pais", load_reference("paises")), ("dim_uf", load_reference("ufs"))]:
         p = out / f"{name}.parquet"

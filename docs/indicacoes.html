@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Indicações geográficas — BADEPI Dashboard</title>
+  <meta name="description" content="Painel das indicações geográficas brasileiras reconhecidas pelo INPI (BADEPI v12): indicações de procedência e denominações de origem, por UF, produto e ano, com explorador de todas as IGs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M8 22V12m8 10V8m8 14v-6' stroke='white' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.6.0/echarts.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<header class="topbar" id="topbar"></header>
+<section class="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="container">
+    <span class="eyebrow">● BADEPI v12 · INPI · dados até dezembro de 2025</span>
+    <h1>Indicações geográficas: <span class="grad">o lugar como marca</span></h1>
+    <p class="lead">Uma indicação geográfica reconhece que um produto ou serviço deve suas características ao território de origem. Do café do Cerrado Mineiro aos vinhos do Vale dos Vinhedos, aqui estão todos os pedidos desde 2000, com o explorador completo das IGs brasileiras.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="v" data-kpi="registradas" data-count="0">–</div><div class="l">IGs registradas</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="ip_registradas" data-count="0">–</div><div class="l">indicações de procedência</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="do_registradas" data-count="0">–</div><div class="l">denominações de origem</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="ufs_com_ig" data-count="0">–</div><div class="l">UFs com IG registrada</div></div>
+    </div>
+    <div class="subnav" id="subnav"></div>
+  </div>
+</section>
+<div class="container"><div class="kpi-row" id="kpis" aria-label="Indicadores principais"></div></div>
+
+<section class="block" id="panorama"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Panorama</span><h2>Pedidos e registros por ano</h2><p>Poucos pedidos, grande impacto territorial: cada IG representa uma região produtora organizada em associação.</p></div>
+  <div class="grid">
+    <article class="card col-6 reveal" data-chart="dep-tipo"><header><div class="titles"><h3>Pedidos por espécie</h3><p class="sub">Indicação de procedência (IP) e denominação de origem (DO), por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div><footer class="note">IP reconhece a reputação do lugar; DO exige que as qualidades do produto decorram do meio geográfico.</footer></article>
+    <article class="card col-6 reveal" data-chart="dep-wipo"><header><div class="titles"><h3>Pedidos por categoria de produto</h3><p class="sub">Classificação alinhada às estatísticas da OMPI, por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="imp-concessoes"><header><div class="titles"><h3>Registros concedidos por ano</h3><p class="sub">Por ano de publicação do registro na RPI</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="wipo-bar"><header><div class="titles"><h3>Categorias de produto</h3><p class="sub">Pedidos e registros 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="jornada"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Jornada do pedido</span><h2>Do pedido ao reconhecimento</h2></div>
+  <div class="grid">
+    <article class="card col-8 reveal" data-chart="sit-coorte"><header><div class="titles"><h3>Situação atual por ano de depósito</h3><p class="sub">Como terminaram (ou estão) os pedidos de cada safra</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Registros de IG não expiram.</footer></article>
+    <article class="card col-4 reveal" data-chart="imp-tempo"><header><div class="titles"><h3>Tempo até o registro</h3><p class="sub">Anos entre o protocolo e a publicação do registro, por ano de registro</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Poucos registros por ano: a mediana oscila.</footer></article>
+    <article class="card col-12 reveal" data-chart="ciclo"><header><div class="titles"><h3>Ciclo de vida de um pedido de IG</h3><p class="sub" id="ciclo-sub">Estado dos pedidos a cada ano decorrido desde o protocolo</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
+      <div class="filter-row"><div class="seg" data-key="ano"><button class="active" data-value="todos">Todas as safras</button></div></div><div class="chart"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="onde"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Onde</span><h2>O mapa das IGs</h2></div>
+  <div class="grid">
+    <article class="card col-6 reveal" data-chart="mapa"><header><div class="titles"><h3>Indicações geográficas por UF</h3><p class="sub">UF do depositante (associação ou entidade representativa)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="filter-row"><div class="seg" data-key="view"><button data-value="total">Pedidos</button><button class="active" data-value="concedidos">Registradas</button></div></div><div class="chart map"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="uf-ranking"><header><div class="titles"><h3>Ranking das UFs</h3><p class="sub">Pedidos de residentes 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart map"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="explorador"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Explorador</span><h2>Todas as indicações geográficas</h2><p>Pesquise por nome, produto, UF ou situação. Inclui pedidos estrangeiros de reconhecimento no Brasil.</p></div>
+  <div class="card reveal explorer" id="explorer">
+    <div class="filters"><input type="search" id="ex-q" placeholder="Buscar por nome, produto, cidade ou depositante…"><select id="ex-tipo"><option value="">Espécie: todas</option><option value="IP">Indicação de procedência</option><option value="DO">Denominação de origem</option></select><select id="ex-sit"><option value="">Situação: todas</option><option value="Concedida">Registrada</option><option value="Em andamento">Em andamento</option><option value="Arquivada">Arquivada</option><option value="Indeferida">Indeferida</option></select><select id="ex-uf"><option value="">UF: todas</option></select><select id="ex-wipo"><option value="">Categoria: todas</option></select></div>
+    <div class="count" id="ex-count"></div>
+    <div class="table-view" id="ex-table"></div>
+  </div>
+</div></section>
+
+<section class="block" id="metodo"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Método</span><h2>Como ler estes números</h2></div>
+  <div class="prose reveal"><ul>
+    <li><strong>Fonte.</strong> BADEPI v12 (INPI/CGEI), microdados de indicação geográfica: 254 pedidos de 2000 a 2025.</li>
+    <li><strong>Espécie.</strong> Usa-se a espécie atual (TIPO_IG_ALTER), que incorpora alterações posteriores de IP para DO.</li>
+    <li><strong>Situação.</strong> Derivada dos despachos (concessão de registro, indeferimento, arquivamento, desistência); registros de IG não expiram.</li>
+    <li><strong>Origem.</strong> UF e país do depositante — a entidade que representa os produtores — que pode diferir da área delimitada.</li>
+  </ul></div>
+</div></section>
+<footer class="site" id="site-footer"></footer>
+<script type="module" src="assets/js/ig.js"></script>
+</body>
+</html>

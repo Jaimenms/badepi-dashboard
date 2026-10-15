@@ -57,9 +57,9 @@ SOURCES: dict[str, Source] = {
     s.slug: s
     for s in [
         Source("patentes", "ptn", "Patentes", "G33ljb4puihwzDR", silver_ready=True),
-        Source("marcas", "mrc", "Marcas", "muKXZIss7b6t1Mc"),
-        Source("desenho_industrial", "di", "Desenho Industrial", "lhf76AMnV9ZQRQU"),
-        Source("indicacao_geografica", "ig", "Indicação Geográfica", "1AG5jwKf9JZkNYl"),
+        Source("marcas", "mrc", "Marcas", "muKXZIss7b6t1Mc", silver_ready=True),
+        Source("desenho_industrial", "di", "Desenho Industrial", "lhf76AMnV9ZQRQU", silver_ready=True),
+        Source("indicacao_geografica", "ig", "Indicação Geográfica", "1AG5jwKf9JZkNYl", silver_ready=True),
         Source("contratos", "ctt", "Contratos de Tecnologia", "st9Qc409XUtnuWV"),
         Source("programa_computador", "prg", "Programa de Computador", "l3NBlP1i9WWnZKE"),
         Source("topografia_ci", "tci", "Topografia de Circuito Integrado", "6MeSqSiYXoxPVAX"),

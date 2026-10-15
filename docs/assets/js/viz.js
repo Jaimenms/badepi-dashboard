@@ -82,6 +82,10 @@ export function base(t) {
 export const legendDefaults = t => ({ top: 0, left: 0, icon: 'circle', itemWidth: 9, itemHeight: 9, itemGap: 14, textStyle: { color: t.ink2, fontSize: 12.5 } });
 export const ax = {
   cat: (t, data, extra = {}) => ({ type: 'category', data, boundaryGap: extra.boundaryGap ?? false, axisLine: { lineStyle: { color: t.axis } }, axisTick: { show: false }, axisLabel: { color: t.muted, hideOverlap: true, ...(extra.axisLabel || {}) }, ...extra }),
+  // eixo temporal com o significado da data explícito (ex.: "Ano de depósito (protocolo no INPI)")
+  time: (t, data, name, extra = {}) => ({ type: 'category', data, boundaryGap: extra.boundaryGap ?? false, name, nameLocation: 'middle', nameGap: 30,
+    nameTextStyle: { color: t.muted, fontSize: 11.5, fontWeight: 600 }, axisLine: { lineStyle: { color: t.axis } }, axisTick: { show: false },
+    axisLabel: { color: t.muted, hideOverlap: true, ...(extra.axisLabel || {}) }, ...extra }),
   val: (t, extra = {}) => ({ type: 'value', splitNumber: 4, splitLine: { lineStyle: { color: t.grid } }, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: t.muted, hideOverlap: true, formatter: extra.formatter || fmt.compact }, ...extra }),
   catY: (t, data, extra = {}) => ({ type: 'category', data, inverse: true, axisLine: { show: false }, axisTick: { show: false }, axisLabel: { color: t.ink2, width: extra.width || 180, overflow: 'truncate', fontSize: extra.fontSize || 12.5, interval: 0 }, ...extra }),
 };
@@ -118,6 +122,8 @@ function render(r, setOpts = { notMerge: true }) {
   r.last = res;
   if (!r.chart) r.chart = echarts.init(el, null, { renderer: 'canvas' });
   const opt = deepMerge(base(t), res.option);
+  const xs = Array.isArray(opt.xAxis) ? opt.xAxis : [opt.xAxis];
+  if (xs.some(x => x && x.name) && opt.grid && !Array.isArray(opt.grid)) opt.grid.bottom = Math.max(opt.grid.bottom || 0, 30);
   if (res.option.legend) opt.legend = deepMerge(legendDefaults(t), res.option.legend); else opt.legend = { show: false };
   // em telas estreitas a legenda quebra em duas linhas: abre espaço acima do plot
   if (res.option.legend && innerWidth < 640 && opt.grid && !Array.isArray(opt.grid)) opt.grid.top = Math.max(opt.grid.top || 0, 64);
@@ -184,6 +190,7 @@ export function countUpOnView(scope = document) {
   const io = new IntersectionObserver(entries => {
     for (const e of entries) if (e.isIntersecting) {
       const el = e.target; const d = el.dataset;
+      if (Number(d.count) >= 1e6 && el.parentElement?.classList.contains('big')) el.parentElement.classList.add('long');
       countUp(el, Number(d.count), { decimals: Number(d.decimals || 0), suffix: d.suffix || '', prefix: d.prefix || '' });
       io.unobserve(el);
     }

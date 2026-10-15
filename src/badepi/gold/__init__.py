@@ -1,4 +1,4 @@
-"""Camada gold: agregações prontas para o dashboard, um módulo por ativo."""
+"""Camada gold: agregações prontas para o dashboard, um módulo por ativo + comparativo da página inicial."""
 
 from __future__ import annotations
 
@@ -18,3 +18,6 @@ def run(slugs: list[str], force: bool = False) -> None:
             continue
         module = importlib.import_module(f"badepi.gold.{slug}")
         module.build(force=force)
+    from . import comparativo
+
+    comparativo.build(force=force)

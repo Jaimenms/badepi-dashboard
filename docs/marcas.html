@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Marcas — BADEPI Dashboard</title>
+  <meta name="description" content="Painel interativo dos pedidos de registro de marca no INPI (BADEPI v12): depósitos, registros, tempo até o registro, classes de Nice, origem, gênero e ciclo de vida.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M8 22V12m8 10V8m8 14v-6' stroke='white' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.6.0/echarts.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</head>
+<body>
+<header class="topbar" id="topbar"></header>
+<section class="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="container">
+    <span class="eyebrow">● BADEPI v12 · INPI · dados até dezembro de 2025</span>
+    <h1>Marcas: <span class="grad">o maior ativo em volume</span></h1>
+    <p class="lead">Mais de cinco milhões de pedidos de registro de marca desde 2000, 88% de residentes. Aqui estão os depósitos por ano, o que acontece com cada pedido, quanto tempo o INPI leva para registrar, quais classes e onde estão os titulares.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="v" data-kpi="pedidos_total" data-count="0">–</div><div class="l">pedidos de registro (2000–2025)</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="concessoes_total" data-count="0">–</div><div class="l">marcas registradas</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="vigentes" data-count="0">–</div><div class="l">registros vigentes</div></div>
+      <div class="hero-stat"><div class="v" data-kpi="n_depositantes_distintos" data-count="0">–</div><div class="l">depositantes distintos</div></div>
+    </div>
+    <div class="subnav" id="subnav"></div>
+  </div>
+</section>
+<div class="container"><div class="kpi-row" id="kpis" aria-label="Indicadores principais"></div></div>
+
+<section class="block" id="panorama"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Panorama</span><h2>26 anos de depósitos de marcas</h2><p>Pedidos contados pelo ano de protocolo no INPI (entrada direta ou designação do Brasil via Protocolo de Madri, desde 2019).</p></div>
+  <div class="grid">
+    <article class="card col-8 reveal" data-chart="dep-origem"><header><div class="titles"><h3>Pedidos de registro por ano</h3><p class="sub">Residentes e não residentes, pelo país do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">O crescimento a partir de 2019 coincide com a adesão ao Protocolo de Madri, o peticionamento totalmente eletrônico e a redução de preços para pequenos depositantes.</footer></article>
+    <article class="card col-4 reveal" data-chart="dep-categoria"><header><div class="titles"><h3>Quem são os depositantes residentes</h3><p class="sub">Por categoria do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Categoria inferida do nome e do tipo de pessoa (heurística).</footer></article>
+    <article class="card col-4 keep reveal" data-chart="dep-natureza"><header><div class="titles"><h3>Natureza da marca</h3><p class="sub">Produto, serviço ou ambos</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div><footer class="note">Desde 2019 o INPI classifica o pedido como "produto/serviço" em vez de separar as naturezas.</footer></article>
+    <article class="card col-4 keep reveal" data-chart="dep-apresentacao"><header><div class="titles"><h3>Forma de apresentação</h3><p class="sub">Nominativa, mista, figurativa ou tridimensional</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-4 keep reveal" data-chart="dep-madri"><header><div class="titles"><h3>Entradas via Protocolo de Madri</h3><p class="sub">Parcela dos pedidos do ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div><footer class="note">O Brasil aderiu ao Protocolo de Madri em outubro de 2019.</footer></article>
+  </div>
+</div></section>
+
+<section class="block" id="jornada"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Jornada do pedido</span><h2>Do depósito ao registro</h2><p>Publicação para oposição, exame, deferimento, pagamento e registro: a trilha de cada pedido reconstruída a partir dos despachos da RPI.</p></div>
+  <div class="story">
+    <article class="card col-3 hero-num reveal"><div class="big"><span id="big-tempo" data-count="0" data-decimals="1">–</span><small>anos</small></div><div class="big-label">tempo mediano entre o protocolo e o registro, em <span id="big-tempo-ano"></span></div><div class="big-sub" id="big-tempo-sub"></div></article>
+    <article class="card col-3 hero-num reveal"><div class="big"><span id="big-backlog" data-count="0">–</span></div><div class="big-label">pedidos sem decisão de mérito ao fim de <span id="big-backlog-ano"></span></div><div class="big-sub" id="big-backlog-sub"></div></article>
+    <article class="card col-3 hero-num reveal"><div class="big"><span id="big-vigentes" data-count="0">–</span></div><div class="big-label">registros de marca vigentes hoje</div><div class="big-sub" id="big-vigentes-sub"></div></article>
+    <article class="card col-3 hero-num reveal"><div class="big"><span id="big-opos" data-count="0" data-decimals="1" data-suffix="%">–</span></div><div class="big-label">dos pedidos recebem oposição de terceiros</div><div class="big-sub" id="big-opos-sub"></div></article>
+    <article class="card col-8 reveal" data-chart="ciclo"><header><div class="titles"><h3>Ciclo de vida de um pedido de marca</h3><p class="sub" id="ciclo-sub">Estado dos pedidos a cada ano decorrido desde o protocolo</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
+      <div class="filter-row"><div class="seg" data-key="ano"><button class="active" data-value="todos">Todas as safras</button><button data-value="2005">2005</button><button data-value="2012">2012</button><button data-value="2018">2018</button><button data-value="2021">2021</button></div><label class="range" for="ciclo-ano">Outra safra <input type="range" id="ciclo-ano" data-key="ano" min="2000" max="2025" value="2018"> <output for="ciclo-ano">2018</output></label></div>
+      <div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">Registros de marca valem 10 anos e são prorrogáveis indefinidamente; "extinta" aqui é a extinção publicada pelo INPI (falta de prorrogação, renúncia, caducidade ou nulidade).</footer></article>
+    <article class="card col-4 reveal" data-chart="funil"><header><div class="titles"><h3>Funil de uma safra</h3><p class="sub">Etapas alcançadas pelos pedidos de um ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
+      <div class="filter-row"><label class="range" for="funil-ano">Ano de depósito <input type="range" id="funil-ano" data-key="ano" min="2000" max="2025" value="2018"> <output for="funil-ano">2018</output></label></div><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-8 reveal" data-chart="sit-coorte"><header><div class="titles"><h3>Situação atual por ano de depósito</h3><p class="sub">Como terminaram (ou estão) os pedidos de cada safra</p></div><div class="actions"><div class="seg" data-key="view"><button class="active" data-value="todos">Todos</button><button data-value="res">Residentes</button><button data-value="nres">Não residentes</button></div><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note">"Arquivada" inclui o arquivamento por falta de pagamento da concessão após o deferimento e por não cumprimento de exigência.</footer></article>
+    <article class="card col-4 reveal" data-chart="tempo-hist"><header><div class="titles"><h3>Distribuição do tempo até o registro</h3><p class="sub" id="tempo-hist-sub">Registros recentes</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div><footer class="note" id="tempo-via-note"></footer></article>
+    <article class="card col-6 reveal" data-chart="imp-tempo"><header><div class="titles"><h3>Tempo até o registro</h3><p class="sub">Anos entre o protocolo e a publicação do registro, por ano de registro (mediana e quartis)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div><footer class="note">Os primeiros anos da série subestimam o tempo porque a base só tem pedidos depositados desde 2000.</footer></article>
+    <article class="card col-6 reveal" data-chart="imp-backlog"><header><div class="titles"><h3>Estoque de pedidos sem decisão</h3><p class="sub">Pedidos protocolados e ainda sem deferimento, indeferimento, arquivamento ou registro ao fim do ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="imp-concessoes"><header><div class="titles"><h3>Registros concedidos por ano</h3><p class="sub">Primeira concessão de registro de cada pedido, por ano de publicação na RPI</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="eventos"><header><div class="titles"><h3>Atividade do INPI por tipo de despacho</h3><p class="sub">Pedidos distintos com cada evento, por ano de publicação na RPI</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+    <article class="card col-12 reveal" data-chart="transicoes"><header><div class="titles"><h3>Mapa das transições entre despachos</h3><p class="sub" id="transicoes-sub">Cada seta liga um despacho ao seguinte no mesmo pedido; a espessura é o número de transições</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header>
+      <div class="controls"><label>Depositados de <input type="range" id="tr-de" data-key="de" min="2000" max="2025" value="2013"> <output for="tr-de">2013</output></label><label>até <input type="range" id="tr-ate" data-key="ate" min="2000" max="2025" value="2025"> <output for="tr-ate">2025</output></label><label>Mínimo de transições <input type="range" id="tr-min" data-key="min" min="100" max="100000" step="100" value="5000"> <output for="tr-min">5000</output></label></div>
+      <div class="chart" style="height:680px"></div><div class="table-view hidden"></div><footer class="note">O BADEPI não traz a descrição dos despachos de marcas; os códigos decisivos foram identificados em publicações da RPI (ver <a href="como-usar.html#situacao">método</a>). Códigos DESP (até 2013) e IPAS (desde 2013) pertencem a sistemas diferentes.</footer></article>
+  </div>
+</div></section>
+
+<section class="block" id="quem"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Quem</span><h2>Quem registra marcas</h2></div>
+  <div class="grid">
+    <article class="card col-8 reveal" data-chart="race"><header><div class="titles"><h3>Corrida dos depositantes residentes</h3><p class="sub">Pedidos acumulados desde 2000 — os 12 maiores a cada ano</p></div><div class="actions"><button class="icon-btn btn-play">▶ Reproduzir</button><button class="icon-btn btn-table">Tabela</button></div></header><div class="chips"><span style="--c:var(--s1)">Universidade</span><span style="--c:var(--s2)">Empresa</span><span style="--c:var(--s3)">Instituto de pesquisa</span><span style="--c:var(--s4)">Pessoa física</span><span style="--c:var(--s5)">Governo</span></div><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-4 reveal" data-chart="top-dep"><header><div class="titles"><h3>Maiores depositantes</h3><p class="sub">Pedidos 2000–2025, pelo primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="filter-row"><div class="seg" data-key="view"><button class="active" data-value="top_geral">Geral</button><button data-value="top_residentes">Residentes</button><button data-value="top_nao_residentes">Estrangeiros</button></div></div><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="paises-bar"><header><div class="titles"><h3>Países de origem</h3><p class="sub">Pedidos pelo país do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="paises-linhas"><header><div class="titles"><h3>Principais origens estrangeiras</h3><p class="sub">Pedidos por ano, seis maiores países fora o Brasil</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="gen-dep"><header><div class="titles"><h3>Mulheres entre depositantes pessoa física</h3><p class="sub">Residentes, sexo provável pelo primeiro nome (BADEPI PI e Gênero)</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="onde"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Onde</span><h2>A geografia das marcas</h2></div>
+  <div class="grid">
+    <article class="card col-6 reveal" data-chart="mapa"><header><div class="titles"><h3>Pedidos de residentes por UF</h3><p class="sub">Primeiro depositante domiciliado no Brasil</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="filter-row"><div class="seg" data-key="view"><button class="active" data-value="total">Pedidos</button><button data-value="concedidos">Registrados</button><button data-value="vigentes">Vigentes</button><button data-value="ultimo_ano">Último ano</button></div></div><div class="chart map"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="regioes"><header><div class="titles"><h3>Pedidos de residentes por região</h3><p class="sub">Por ano de depósito</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart map"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="municipios"><header><div class="titles"><h3>Municípios com mais pedidos</h3><p class="sub">Pelo município do primeiro depositante</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-6 reveal" data-chart="uf-ranking"><header><div class="titles"><h3>Ranking das UFs</h3><p class="sub">Pedidos de residentes 2000–2025</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart xtall"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="classes"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Classes</span><h2>O que as marcas protegem</h2><p>Classificação de Nice: classes 1 a 34 são produtos; 35 a 45, serviços. Cada pedido é contado na sua classe principal.</p></div>
+  <div class="grid">
+    <article class="card col-8 reveal" data-chart="classes-bar"><header><div class="titles"><h3>Pedidos por classe de Nice</h3><p class="sub">2000–2025, classe principal do pedido</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart" style="height:720px"></div><div class="table-view hidden"></div></article>
+    <article class="card col-4 reveal" data-chart="classes-ps"><header><div class="titles"><h3>Produtos vs. serviços</h3><p class="sub">Pedidos por ano pela classe principal</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div></article>
+    <article class="card col-12 reveal" data-chart="classes-linhas"><header><div class="titles"><h3>As oito maiores classes ao longo do tempo</h3><p class="sub">Pedidos por ano</p></div><div class="actions"><button class="icon-btn btn-table">Tabela</button></div></header><div class="chart tall"></div><div class="table-view hidden"></div></article>
+  </div>
+</div></section>
+
+<section class="block" id="metodo"><div class="container">
+  <div class="section-head reveal"><span class="eyebrow">Método</span><h2>Como ler estes números</h2></div>
+  <div class="prose reveal"><ul>
+    <li><strong>Fonte.</strong> BADEPI v12 (INPI/CGEI), microdados de marcas: 5,15 milhões de pedidos depositados de 2000 a 2025 e 19 milhões de despachos.</li>
+    <li><strong>Contagem.</strong> Pelo ano de protocolo no INPI; para designações via Madri, a data de entrada na fase nacional.</li>
+    <li><strong>Despachos.</strong> O BADEPI traz só o código (DESP### até 2013, IPAS### desde então), sem descrição. Os códigos decisivos (publicação, oposição, exigência, deferimento, registro, arquivamento, indeferimento, recurso, extinção, petições) foram identificados em publicações da RPI; os demais entram como "outros".</li>
+    <li><strong>Situação.</strong> Mesma regra dos demais ativos (ver <a href="como-usar.html#situacao">método</a>). Marcas não têm prazo máximo de vigência: "vigente" = registrada sem extinção publicada.</li>
+    <li><strong>Classe principal.</strong> Primeira classe de Nice do pedido; desde 2000 o INPI adota uma classe por pedido, salvo pedidos via Madri.</li>
+  </ul></div>
+</div></section>
+<footer class="site" id="site-footer"></footer>
+<script type="module" src="assets/js/marcas.js"></script>
+</body>
+</html>

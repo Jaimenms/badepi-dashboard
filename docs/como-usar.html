@@ -12,15 +12,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232a78d6'/%3E%3Cpath d='M8 22V12m8 10V8m8 14v-6' stroke='white' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
 </head>
 <body>
-<header class="topbar">
-  <div class="container">
-    <a class="brand" href="./"><span class="logo">PI</span>BADEPI<small>v12 · como usar</small></a>
-    <nav class="primary" aria-label="Seções">
-      <a href="./">Dashboard</a><a href="#fonte">Fonte</a><a href="#arquitetura">Arquitetura</a><a href="#rodar">Rodar</a><a href="#modelo">Modelo de dados</a><a href="#pandas">Pandas</a><a href="#situacao">Método</a><a href="#roadmap">Outros ativos</a>
-    </nav>
-    <button class="icon-btn" id="theme-toggle" aria-label="Alternar tema">🌙 <span>Escuro</span></button>
-  </div>
-</header>
+<header class="topbar" id="topbar"></header>
 
 <section class="hero" style="padding:56px 0 40px">
   <div class="container">
@@ -34,16 +26,16 @@
   <div class="container prose">
     <div class="section-head"><span class="eyebrow">Fonte</span><h2>O que é o BADEPI</h2></div>
     <p>A <strong>Base de Dados de Propriedade Intelectual (BADEPI)</strong> é mantida pela Coordenação-Geral de Economia e Inovação do INPI em cooperação com a OMPI. Reúne, para fins estatísticos, os registros administrativos de cada ativo de PI, com série histórica de 2000 a 2025 e dados pessoais limitados conforme a LGPD. É atualizada uma vez por ano; a versão 12.0 saiu em 13/10/2026.</p>
-    <p>Cada ativo é um arquivo zip com CSVs (separador <code>;</code>, CRLF, encoding misto latin-1/UTF-8) e um dicionário de microdados em XLSX. Patentes tem sete tabelas:</p>
+    <p>Cada ativo é um arquivo zip com CSVs (separador <code>;</code>, CRLF, encoding misto latin-1/UTF-8) e um dicionário de microdados em XLSX. Patentes tem sete tabelas; marcas, quatro; desenhos, cinco; IG, quatro.</p>
     <div class="asset-grid">
-      <div class="asset ready">Patentes <span class="st">silver + dashboard</span></div>
-      <div class="asset">Marcas <span class="st">bronze</span></div>
-      <div class="asset">Desenho Industrial <span class="st">bronze</span></div>
-      <div class="asset">Indicação Geográfica <span class="st">bronze</span></div>
+      <div class="asset ready">Patentes <span class="st">silver + painel</span></div>
+      <div class="asset ready">Marcas <span class="st">silver + painel</span></div>
+      <div class="asset ready">Desenho Industrial <span class="st">silver + painel</span></div>
+      <div class="asset ready">Indicação Geográfica <span class="st">silver + painel</span></div>
       <div class="asset">Contratos de Tecnologia <span class="st">bronze</span></div>
       <div class="asset">Programa de Computador <span class="st">bronze</span></div>
       <div class="asset">Topografia de Circuito Integrado <span class="st">bronze</span></div>
-      <div class="asset ready">PI e Gênero <span class="st">silver (patentes)</span></div>
+      <div class="asset ready">PI e Gênero <span class="st">silver (patentes, marcas, DI)</span></div>
     </div>
     <p style="margin-top:14px">Página oficial: <a href="https://www.gov.br/inpi/pt-br/inpi-data/dados-e-series-temporais/badepi" target="_blank" rel="noopener">gov.br/inpi → BADEPI</a>.</p>
   </div>
@@ -62,8 +54,8 @@
 │   ├── config.py          fontes (8 zips), versão, diretórios
 │   ├── bronze.py          download com validação + extração + manifesto
 │   ├── ioutil.py          leitura dos CSV (encoding misto) e escrita parquet/JSON
-│   ├── silver/patentes.py CSV → parquet relacionado (7 tabelas + derivadas + dims)
-│   ├── gold/patentes.py   parquet → JSON do dashboard
+│   ├── silver/            common.py (blocos compartilhados) + patentes, marcas, desenho_industrial, indicacao_geografica
+│   ├── gold/              common.py (agregações) + um módulo por ativo + comparativo (página inicial)
 │   └── reference/         campos tecnológicos OMPI, UFs, países
 ├── data/                  bronze / silver / gold (ignorado pelo git)
 ├── docs/                  site estático publicado no GitHub Pages
@@ -82,8 +74,8 @@ cd badepi-dashboard
 uv sync</code></pre></div></div>
       <div class="step"><div><strong>Bronze — baixe e extraia</strong> (todos os ativos, ou só os desejados com <code>-s</code>)<pre><code>uv run badepi bronze                      # os 8 zips
 uv run badepi bronze -s patentes -s pi_genero</code></pre></div></div>
-      <div class="step"><div><strong>Silver — transforme em parquet</strong> (patentes: ~1 min, pico de 2,6 GB de RAM)<pre><code>uv run badepi silver -s patentes</code></pre></div></div>
-      <div class="step"><div><strong>Gold — gere os JSON do painel</strong> e sirva o site localmente<pre><code>uv run badepi gold -s patentes
+      <div class="step"><div><strong>Silver — transforme em parquet</strong> (patentes ~1 min; marcas ~1,5 min e 6 GB de RAM)<pre><code>uv run badepi silver -s patentes -s marcas -s desenho_industrial -s indicacao_geografica</code></pre></div></div>
+      <div class="step"><div><strong>Gold — gere os JSON do painel</strong> e sirva o site localmente<pre><code>uv run badepi gold                       # todos os ativos prontos + comparativo
 python -m http.server -d docs 8000      # abra http://localhost:8000</code></pre></div></div>
     </div>
     <div class="callout">Atalho: <code>uv run badepi all -s patentes -s pi_genero</code> executa bronze → silver → gold. Use <code>--force</code> para refazer uma camada já construída. A variável <code>BADEPI_DATA_DIR</code> muda a pasta dos dados.</div>
@@ -93,8 +85,9 @@ python -m http.server -d docs 8000      # abra http://localhost:8000</code></pre
 
 <section class="block" id="modelo">
   <div class="container">
-    <div class="section-head"><span class="eyebrow">Modelo de dados</span><h2>Tabelas silver de patentes</h2><p>Todas as tabelas se relacionam pela chave <code>no_pedido</code> (número do pedido sem espaços). Datas são <code>datetime64[ms]</code>; vazios são nulos; inteiros usam tipos nullable (Int16/Int32).</p></div>
-    <div class="card" style="margin-bottom:18px"><header><div class="titles"><h3>Relacionamentos</h3><p class="sub">Diagrama lógico: fatos (azul), derivadas (violeta) e dimensões (cinza)</p></div></header>
+    <div class="section-head"><span class="eyebrow">Modelo de dados</span><h2>Tabelas silver</h2><p>Em todos os ativos as tabelas se relacionam pela chave <code>no_pedido</code>; cada ativo tem um fato <code>&lt;prefixo&gt;_deposito</code> (1 linha por pedido, com origem e colunas derivadas) e uma <code>&lt;prefixo&gt;_situacao</code> (situação e marcos), mais depositantes, despachos, classes e dimensões. Datas são <code>datetime64[ms]</code>; vazios são nulos; inteiros usam tipos nullable.</p></div>
+    <div class="filter-row"><div class="seg" id="modelo-seg"><button class="active" data-value="patentes">Patentes</button><button data-value="marcas">Marcas</button><button data-value="desenho_industrial">Desenhos</button><button data-value="indicacao_geografica">Indicações geográficas</button></div></div>
+    <div class="card" style="margin-bottom:18px"><header><div class="titles"><h3>Relacionamentos (exemplo: patentes)</h3><p class="sub">Diagrama lógico: fato (azul), derivada (violeta) e dimensões (cinza); marcas, desenhos e IG seguem a mesma forma</p></div></header>
       <svg viewBox="0 0 960 420" width="100%" role="img" aria-label="Diagrama de relacionamentos das tabelas silver de patentes" style="max-height:440px">
         <defs><marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>
         <g stroke="var(--axis)" stroke-width="1.5" fill="none" marker-end="url(#arr)">
@@ -175,6 +168,10 @@ inv[inv.no_pedido == "102012000050"][["no_ordem", "nome", "uf", "cidade"]]</code
       <li><strong>Campo tecnológico principal</strong>: campo da IPC de ordem 1; se ausente, o primeiro campo informado.</li>
       <li><strong>Categoria do depositante</strong>: expressões regulares sobre o nome normalizado (universidade, instituto de pesquisa, governo, empresa) + tipo de pessoa (F/J) informado para residentes. Pedidos em sigilo chegam sem nome → "não identificado".</li>
     </ul>
+    <h3>Despachos de marcas e de desenhos</h3>
+    <p>O BADEPI não traz a descrição dos despachos de <strong>marcas</strong> (só os códigos <code>DESP###</code>, usados até 2013, e <code>IPAS###</code>, desde então). Os códigos decisivos foram identificados em publicações da RPI — publicação para oposição (003/IPAS009), oposição (IPAS423), exigência de mérito (IPAS142/136), deferimento (351/IPAS029), registro (400/IPAS158), arquivamento por falta de pagamento (150/IPAS157), indeferimento (100/IPAS024), recurso (IPAS360/237/235), extinção (IPAS161), petições (IPAS270/271/428) — e estão em <code>silver/marcas.py</code>; os demais entram como "outros". Em <strong>desenhos industriais</strong>, os códigos do sistema novo (fim de 2023) também vêm sem descrição e foram inferidos pela cronologia: 860 depósito, 158 registro, 870 prorrogação, 136 exigência, 139 arquivamento, 270 petição deferida, 1214/1233/1252 trâmite via Haia.</p>
+    <h3>Ciclo de vida e grafo de transições</h3>
+    <p>O <strong>ciclo de vida</strong> calcula, para cada pedido, o estado a cada meio ano decorrido desde o protocolo (depositado → publicado → vigente / indeferido / arquivado / retirado → extinto ou expirado), usando só os pedidos já observáveis naquele ponto. O <strong>grafo de transições</strong> conta, dentro de cada pedido, os pares de despachos consecutivos (a → b) por ano de depósito; os 45 códigos mais frequentes viram nós e os demais são somados em "OUTROS".</p>
     <h3>Problemas conhecidos da fonte (v12)</h3>
     <ul>
       <li><code>DT_PEDIDO_ORIGEM</code> em prioridades repete o número da prioridade: as datas ficam nulas.</li>
@@ -192,7 +189,7 @@ inv[inv.no_pedido == "102012000050"][["no_ordem", "nome", "uf", "cidade"]]</code
   </div>
 </section>
 
-<footer class="site"><div class="container"><div>Dados: <a href="https://www.gov.br/inpi/pt-br/inpi-data/dados-e-series-temporais/badepi" target="_blank" rel="noopener">BADEPI — INPI</a> · Código: MIT</div><div><a href="./">← Voltar ao dashboard</a></div></div></footer>
+<footer class="site" id="site-footer"></footer>
 <script type="module" src="assets/js/guide.js"></script>
 </body>
 </html>
